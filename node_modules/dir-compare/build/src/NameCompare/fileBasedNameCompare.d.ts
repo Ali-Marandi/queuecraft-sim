@@ -1,0 +1,9 @@
+import { ExtOptions } from "../ExtOptions";
+import { StringCompareResult } from "./StringCompareResult";
+/**
+ * Name comparator used when dir-compare is called to compare two files by content.
+ * In this case the file name is ignored (ie. comparing a1.txt and a2.txt
+ * will return true if file contents are identical).
+ */
+export declare function fileBasedNameCompare(name1: string, name2: string, options: ExtOptions): StringCompareResult;
+//# sourceMappingURL=fileBasedNameCompare.d.ts.map

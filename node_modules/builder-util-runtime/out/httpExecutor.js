@@ -1,0 +1,529 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DigestTransform = exports.HttpExecutor = exports.HttpError = void 0;
+exports.addSensitiveRedirectHeader = addSensitiveRedirectHeader;
+exports.addSensitiveFieldPattern = addSensitiveFieldPattern;
+exports.createHttpError = createHttpError;
+exports.parseJson = parseJson;
+exports.configureRequestOptionsFromUrl = configureRequestOptionsFromUrl;
+exports.configureRequestUrl = configureRequestUrl;
+exports.safeGetHeader = safeGetHeader;
+exports.configureRequestOptions = configureRequestOptions;
+exports.isSensitiveFieldName = isSensitiveFieldName;
+exports.hashSensitiveValue = hashSensitiveValue;
+exports.safeStringifyJson = safeStringifyJson;
+const crypto_1 = require("crypto");
+const debug_1 = require("debug");
+const fs_1 = require("fs");
+const stream_1 = require("stream");
+const url_1 = require("url");
+const CancellationToken_1 = require("./CancellationToken");
+const error_1 = require("./error");
+const ProgressCallbackTransform_1 = require("./ProgressCallbackTransform");
+const debug = (0, debug_1.default)("electron-builder");
+// ── Sensitive-data registries ────────────────────────────────────────────────
+// Normalise a header or field name: lowercase + strip all separators (- and _).
+// Shared by both registries so lookup is always separator-agnostic.
+const normalizeName = (name) => name.toLowerCase().replace(/[-_]/g, "");
+// HTTP header names (normalised) stripped on cross-origin redirects.
+// Stored normalised; lookup normalises the incoming key with normalizeName().
+const SENSITIVE_REDIRECT_HEADERS = new Set(["authorization", "proxyauthorization", "privatetoken", "xapikey", "xauthtoken", "xaccesstoken", "xgitlabtoken", "cookie", "xcsrftoken"]);
+// Substrings: a field name containing any of these (after normalization) is redacted.
+const SENSITIVE_FIELD_PATTERNS = ["token", "password", "secret", "authorization", "credential", "apikey", "passphrase", "auth"];
+// Suffixes: a field name ending with any of these (after normalization) is redacted.
+// Intentionally greedy — "publicKey" is also stripped; over-stripping debug logs is
+// acceptable, under-stripping a credential is not.
+const SENSITIVE_FIELD_SUFFIXES = ["key"];
+/**
+ * Register an additional HTTP header to strip on cross-origin redirects.
+ * Intended for custom publishers (e.g. GenericPublisher with a non-standard auth header).
+ */
+function addSensitiveRedirectHeader(header) {
+    SENSITIVE_REDIRECT_HEADERS.add(normalizeName(header));
+}
+/**
+ * Register an additional substring pattern used by {@link safeStringifyJson} to
+ * identify sensitive field names. Input is normalized (lowercased, separators stripped).
+ * Intended for custom publishers that store credentials under non-standard field names.
+ */
+function addSensitiveFieldPattern(pattern) {
+    SENSITIVE_FIELD_PATTERNS.push(pattern.toLowerCase().replace(/[-_]/g, ""));
+}
+function createHttpError(response, description = null) {
+    return new HttpError(response.statusCode || -1, `${response.statusCode} ${response.statusMessage}` +
+        (description == null ? "" : "\n" + JSON.stringify(description, null, "  ")) +
+        "\nHeaders: " +
+        safeStringifyJson(response.headers), description);
+}
+const HTTP_STATUS_CODES = new Map([
+    [429, "Too many requests"],
+    [400, "Bad request"],
+    [403, "Forbidden"],
+    [404, "Not found"],
+    [405, "Method not allowed"],
+    [406, "Not acceptable"],
+    [408, "Request timeout"],
+    [413, "Request entity too large"],
+    [500, "Internal server error"],
+    [502, "Bad gateway"],
+    [503, "Service unavailable"],
+    [504, "Gateway timeout"],
+    [505, "HTTP version not supported"],
+]);
+class HttpError extends Error {
+    constructor(statusCode, message = `HTTP error: ${HTTP_STATUS_CODES.get(statusCode) || statusCode}`, description = null) {
+        super(message);
+        this.statusCode = statusCode;
+        this.description = description;
+        this.name = "HttpError";
+        this.code = `HTTP_ERROR_${statusCode}`;
+    }
+    isServerError() {
+        return this.statusCode >= 500 && this.statusCode <= 599;
+    }
+}
+exports.HttpError = HttpError;
+function parseJson(result) {
+    return result.then(it => (it == null || it.length === 0 ? null : JSON.parse(it)));
+}
+class HttpExecutor {
+    constructor() {
+        this.maxRedirects = 10;
+    }
+    request(options, cancellationToken = new CancellationToken_1.CancellationToken(), data) {
+        configureRequestOptions(options);
+        const json = data == null ? undefined : JSON.stringify(data);
+        const encodedData = json ? Buffer.from(json) : undefined;
+        if (encodedData != null) {
+            if (debug.enabled) {
+                debug(safeStringifyJson(data));
+            }
+            const { headers, ...opts } = options;
+            options = {
+                method: "post",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Content-Length": encodedData.length,
+                    ...headers,
+                },
+                ...opts,
+            };
+        }
+        return this.doApiRequest(options, cancellationToken, it => it.end(encodedData));
+    }
+    doApiRequest(options, cancellationToken, requestProcessor, redirectCount = 0) {
+        if (debug.enabled) {
+            const { headers: _headers, auth: _auth, ...safeOptions } = options;
+            debug(`Request: ${safeStringifyJson(safeOptions)}`);
+        }
+        return cancellationToken.createPromise((resolve, reject, onCancel) => {
+            const request = this.createRequest(options, (response) => {
+                try {
+                    this.handleResponse(response, options, cancellationToken, resolve, reject, redirectCount, requestProcessor);
+                }
+                catch (e) {
+                    reject(e);
+                }
+            });
+            this.addErrorAndTimeoutHandlers(request, reject, options.timeout);
+            this.addRedirectHandlers(request, options, reject, redirectCount, options => {
+                this.doApiRequest(options, cancellationToken, requestProcessor, redirectCount).then(resolve).catch(reject);
+            });
+            requestProcessor(request, reject);
+            onCancel(() => request.abort());
+        });
+    }
+    // noinspection JSUnusedLocalSymbols
+    // eslint-disable-next-line
+    addRedirectHandlers(request, options, reject, redirectCount, handler) {
+        // not required for NodeJS
+    }
+    addErrorAndTimeoutHandlers(request, reject, timeout = 60 * 1000) {
+        this.addTimeOutHandler(request, reject, timeout);
+        request.on("error", reject);
+        request.on("aborted", () => {
+            reject(new Error("Request has been aborted by the server"));
+        });
+    }
+    handleResponse(response, options, cancellationToken, resolve, reject, redirectCount, requestProcessor) {
+        var _a;
+        if (debug.enabled) {
+            const { headers: _headers, auth: _auth, ...safeOptions } = options;
+            debug(`Response: ${response.statusCode} ${response.statusMessage}, request options: ${safeStringifyJson(safeOptions)}`);
+        }
+        // we handle any other >= 400 error on request end (read detailed message in the response body)
+        if (response.statusCode === 404) {
+            // error is clear, we don't need to read detailed error description
+            reject(createHttpError(response, `method: ${options.method || "GET"} url: ${options.protocol || "https:"}//${options.hostname}${options.port ? `:${options.port}` : ""}${options.path}
+
+Please double check that your authentication token is correct. Due to security reasons, actual status maybe not reported, but 404.
+`));
+            return;
+        }
+        else if (response.statusCode === 204) {
+            // on DELETE request
+            resolve();
+            return;
+        }
+        const code = (_a = response.statusCode) !== null && _a !== void 0 ? _a : 0;
+        const shouldRedirect = code >= 300 && code < 400;
+        const redirectUrl = safeGetHeader(response, "location");
+        if (shouldRedirect && redirectUrl != null) {
+            if (redirectCount > this.maxRedirects) {
+                reject(this.createMaxRedirectError());
+                return;
+            }
+            this.doApiRequest(HttpExecutor.prepareRedirectUrlOptions(redirectUrl, options), cancellationToken, requestProcessor, redirectCount).then(resolve).catch(reject);
+            return;
+        }
+        response.setEncoding("utf8");
+        let data = "";
+        response.on("error", reject);
+        response.on("data", (chunk) => (data += chunk));
+        response.on("end", () => {
+            try {
+                if (response.statusCode != null && response.statusCode >= 400) {
+                    const contentType = safeGetHeader(response, "content-type");
+                    const isJson = contentType != null && (Array.isArray(contentType) ? contentType.find(it => it.includes("json")) != null : contentType.includes("json"));
+                    reject(createHttpError(response, `method: ${options.method || "GET"} url: ${options.protocol || "https:"}//${options.hostname}${options.port ? `:${options.port}` : ""}${options.path}
+
+          Data:
+          ${isJson ? safeStringifyJson(JSON.parse(data)) : data}
+          `));
+                }
+                else {
+                    resolve(data.length === 0 ? null : data);
+                }
+            }
+            catch (e) {
+                reject(e);
+            }
+        });
+    }
+    async downloadToBuffer(url, options) {
+        return await options.cancellationToken.createPromise((resolve, reject, onCancel) => {
+            const responseChunks = [];
+            const requestOptions = {
+                headers: options.headers || undefined,
+                // because PrivateGitHubProvider requires HttpExecutor.prepareRedirectUrlOptions logic, so, we need to redirect manually
+                redirect: "manual",
+            };
+            configureRequestUrl(url, requestOptions);
+            configureRequestOptions(requestOptions);
+            this.doDownload(requestOptions, {
+                destination: null,
+                options,
+                onCancel,
+                callback: error => {
+                    if (error == null) {
+                        resolve(Buffer.concat(responseChunks));
+                    }
+                    else {
+                        reject(error);
+                    }
+                },
+                responseHandler: (response, callback) => {
+                    let receivedLength = 0;
+                    response.on("data", (chunk) => {
+                        receivedLength += chunk.length;
+                        if (receivedLength > 524288000) {
+                            callback(new Error("Maximum allowed size is 500 MB"));
+                            return;
+                        }
+                        responseChunks.push(chunk);
+                    });
+                    response.on("end", () => {
+                        callback(null);
+                    });
+                },
+            }, 0);
+        });
+    }
+    doDownload(requestOptions, options, redirectCount) {
+        const request = this.createRequest(requestOptions, (response) => {
+            if (response.statusCode >= 400) {
+                options.callback(new Error(`Cannot download "${requestOptions.protocol || "https:"}//${requestOptions.hostname}${requestOptions.path}", status ${response.statusCode}: ${response.statusMessage}`));
+                return;
+            }
+            // It is possible for the response stream to fail, e.g. when a network is lost while
+            // response stream is in progress. Stop waiting and reject so consumer can catch the error.
+            response.on("error", options.callback);
+            // this code not relevant for Electron (redirect event instead handled)
+            const redirectUrl = safeGetHeader(response, "location");
+            if (redirectUrl != null) {
+                if (redirectCount < this.maxRedirects) {
+                    this.doDownload(HttpExecutor.prepareRedirectUrlOptions(redirectUrl, requestOptions), options, redirectCount++);
+                }
+                else {
+                    options.callback(this.createMaxRedirectError());
+                }
+                return;
+            }
+            if (options.responseHandler == null) {
+                configurePipes(options, response);
+            }
+            else {
+                options.responseHandler(response, options.callback);
+            }
+        });
+        this.addErrorAndTimeoutHandlers(request, options.callback, requestOptions.timeout);
+        this.addRedirectHandlers(request, requestOptions, options.callback, redirectCount, requestOptions => {
+            this.doDownload(requestOptions, options, redirectCount++);
+        });
+        request.end();
+    }
+    createMaxRedirectError() {
+        return new Error(`Too many redirects (> ${this.maxRedirects})`);
+    }
+    addTimeOutHandler(request, callback, timeout) {
+        request.on("socket", (socket) => {
+            socket.setTimeout(timeout, () => {
+                request.abort();
+                callback(new Error("Request timed out"));
+            });
+        });
+    }
+    static prepareRedirectUrlOptions(redirectUrl, options) {
+        const newOptions = configureRequestOptionsFromUrl(redirectUrl, { ...options });
+        const headers = newOptions.headers;
+        if (headers == null) {
+            return newOptions;
+        }
+        const originalUrl = HttpExecutor.reconstructOriginalUrl(options);
+        const parsedRedirectUrl = parseUrl(redirectUrl, options);
+        if (HttpExecutor.isCrossOriginRedirect(originalUrl, parsedRedirectUrl)) {
+            if (debug.enabled) {
+                debug(`Cross-origin redirect (${originalUrl.host} → ${parsedRedirectUrl.host}): stripping sensitive headers`);
+            }
+            for (const key of Object.keys(headers)) {
+                if (SENSITIVE_REDIRECT_HEADERS.has(normalizeName(key))) {
+                    delete headers[key];
+                }
+            }
+        }
+        return newOptions;
+    }
+    static reconstructOriginalUrl(options) {
+        const protocol = options.protocol || "https:";
+        if (!options.hostname) {
+            throw new Error("Missing hostname in request options");
+        }
+        const hostname = options.hostname;
+        const port = options.port ? `:${options.port}` : "";
+        const path = options.path || "/";
+        return new url_1.URL(`${protocol}//${hostname}${port}${path}`);
+    }
+    static isCrossOriginRedirect(originalUrl, redirectUrl) {
+        // Case-insensitive hostname comparison
+        if (originalUrl.hostname.toLowerCase() !== redirectUrl.hostname.toLowerCase()) {
+            return true;
+        }
+        // Special case: allow http -> https redirect on same host with standard ports
+        // This matches the behavior of Python requests library for backward compatibility
+        // url.port returns an empty string if the port is omitted
+        // or explicitly set to the default port for a given protocol.
+        if (originalUrl.protocol === "http:" &&
+            // This can be replaced with `!originalUrl.port`, but for the sake of clarity.
+            ["80", ""].includes(originalUrl.port) &&
+            redirectUrl.protocol === "https:" &&
+            // This can be replaced with `!redirectUrl.port`, but for the sake of clarity.
+            ["443", ""].includes(redirectUrl.port)) {
+            return false;
+        }
+        // According to RFC 7235, a change in protocol or port constitutes a cross-origin request.
+        // Forwarding authentication headers to a different origin can be a security risk.
+        // For example, https://example.com:443 and http://example.com:80 are different origins.
+        // We only make an exception for HTTP -> HTTPS upgrades on standard ports for backward compatibility.
+        // Strip auth on any other protocol change
+        if (originalUrl.protocol !== redirectUrl.protocol) {
+            return true;
+        }
+        // Strip auth on port change (accounting for default ports)
+        const originalPort = originalUrl.port;
+        const redirectPort = redirectUrl.port;
+        return originalPort !== redirectPort;
+    }
+    static async retryOnServerError(task, maxRetries = 3) {
+        for (let attemptNumber = 0;; attemptNumber++) {
+            try {
+                return await task();
+            }
+            catch (e) {
+                if (attemptNumber < maxRetries && ((e instanceof HttpError && e.isServerError()) || e.code === "EPIPE")) {
+                    await new Promise(r => setTimeout(r, 1000 * (attemptNumber + 1)));
+                    continue;
+                }
+                throw e;
+            }
+        }
+    }
+}
+exports.HttpExecutor = HttpExecutor;
+function parseUrl(url, options) {
+    try {
+        // Would throw exception if url is not absolute
+        return new url_1.URL(url);
+    }
+    catch {
+        // Relative URL - construct base URL from original options
+        const hostname = options.hostname;
+        const protocol = options.protocol || "https:";
+        const port = options.port ? `:${options.port}` : "";
+        const baseUrl = `${protocol}//${hostname}${port}`;
+        return new url_1.URL(url, baseUrl);
+    }
+}
+function configureRequestOptionsFromUrl(url, options) {
+    const result = configureRequestOptions(options);
+    const parsedUrl = parseUrl(url, options);
+    configureRequestUrl(parsedUrl, result);
+    return result;
+}
+function configureRequestUrl(url, options) {
+    options.protocol = url.protocol;
+    options.hostname = url.hostname;
+    if (url.port) {
+        options.port = url.port;
+    }
+    else if (options.port) {
+        delete options.port;
+    }
+    options.path = url.pathname + url.search;
+}
+class DigestTransform extends stream_1.Transform {
+    // noinspection JSUnusedGlobalSymbols
+    get actual() {
+        return this._actual;
+    }
+    constructor(expected, algorithm = "sha512", encoding = "base64") {
+        super();
+        this.expected = expected;
+        this.algorithm = algorithm;
+        this.encoding = encoding;
+        this._actual = null;
+        this.isValidateOnEnd = true;
+        this.digester = (0, crypto_1.createHash)(algorithm);
+    }
+    // noinspection JSUnusedGlobalSymbols
+    _transform(chunk, encoding, callback) {
+        this.digester.update(chunk);
+        callback(null, chunk);
+    }
+    // noinspection JSUnusedGlobalSymbols
+    _flush(callback) {
+        this._actual = this.digester.digest(this.encoding);
+        if (this.isValidateOnEnd) {
+            try {
+                this.validate();
+            }
+            catch (e) {
+                callback(e);
+                return;
+            }
+        }
+        callback(null);
+    }
+    validate() {
+        if (this._actual == null) {
+            throw (0, error_1.newError)("Not finished yet", "ERR_STREAM_NOT_FINISHED");
+        }
+        if (this._actual !== this.expected) {
+            throw (0, error_1.newError)(`${this.algorithm} checksum mismatch, expected ${this.expected}, got ${this._actual}`, "ERR_CHECKSUM_MISMATCH");
+        }
+        return null;
+    }
+}
+exports.DigestTransform = DigestTransform;
+function checkSha2(sha2Header, sha2, callback) {
+    if (sha2Header != null && sha2 != null && sha2Header !== sha2) {
+        callback(new Error(`checksum mismatch: expected ${sha2} but got ${sha2Header} (X-Checksum-Sha2 header)`));
+        return false;
+    }
+    return true;
+}
+function safeGetHeader(response, headerKey) {
+    const value = response.headers[headerKey];
+    if (value == null) {
+        return null;
+    }
+    else if (Array.isArray(value)) {
+        // electron API
+        return value.length === 0 ? null : value[value.length - 1];
+    }
+    else {
+        return value;
+    }
+}
+function configurePipes(options, response) {
+    if (!checkSha2(safeGetHeader(response, "X-Checksum-Sha2"), options.options.sha2, options.callback)) {
+        return;
+    }
+    const streams = [];
+    if (options.options.onProgress != null) {
+        const contentLength = safeGetHeader(response, "content-length");
+        if (contentLength != null) {
+            streams.push(new ProgressCallbackTransform_1.ProgressCallbackTransform(parseInt(contentLength, 10), options.options.cancellationToken, options.options.onProgress));
+        }
+    }
+    const sha512 = options.options.sha512;
+    if (sha512 != null) {
+        streams.push(new DigestTransform(sha512, "sha512", sha512.length === 128 && !sha512.includes("+") && !sha512.includes("Z") && !sha512.includes("=") ? "hex" : "base64"));
+    }
+    else if (options.options.sha2 != null) {
+        streams.push(new DigestTransform(options.options.sha2, "sha256", "hex"));
+    }
+    const fileOut = (0, fs_1.createWriteStream)(options.destination);
+    streams.push(fileOut);
+    let lastStream = response;
+    for (const stream of streams) {
+        stream.on("error", (error) => {
+            fileOut.close();
+            if (!options.options.cancellationToken.cancelled) {
+                options.callback(error);
+            }
+        });
+        lastStream = lastStream.pipe(stream);
+    }
+    fileOut.on("finish", () => {
+        ;
+        fileOut.close(options.callback);
+    });
+}
+function configureRequestOptions(options, token, method) {
+    if (method != null) {
+        options.method = method;
+    }
+    options.headers = { ...options.headers };
+    const headers = options.headers;
+    if (token != null) {
+        ;
+        headers.authorization = token.startsWith("Basic") || token.startsWith("Bearer") ? token : `token ${token}`;
+    }
+    if (headers["User-Agent"] == null) {
+        headers["User-Agent"] = "electron-builder";
+    }
+    if (method == null || method === "GET" || headers["Cache-Control"] == null) {
+        headers["Cache-Control"] = "no-cache";
+    }
+    // do not specify for node (in any case we use https module)
+    if (options.protocol == null && process.versions.electron != null) {
+        options.protocol = "https:";
+    }
+    return options;
+}
+function isSensitiveFieldName(name) {
+    const normalized = normalizeName(name);
+    return SENSITIVE_FIELD_PATTERNS.some(p => normalized.includes(p)) || SENSITIVE_FIELD_SUFFIXES.some(s => normalized.endsWith(s));
+}
+function hashSensitiveValue(value) {
+    return `${(0, crypto_1.createHash)("sha256").update(value).digest("hex")} (sha256 hash)`;
+}
+function safeStringifyJson(data, skippedNames) {
+    return JSON.stringify(data, (name, value) => {
+        if (isSensitiveFieldName(name) || (skippedNames != null && skippedNames.has(name))) {
+            return typeof value === "string" ? hashSensitiveValue(value) : "<stripped sensitive data>";
+        }
+        return value;
+    }, 2);
+}
+//# sourceMappingURL=httpExecutor.js.map

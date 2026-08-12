@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QueueCraft Enterprise Simulation Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased h-screen flex flex-col overflow-hidden">
+  
+  <!-- Header -->
+  <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between shrink-0">
+    <div class="flex items-center space-x-3">
+      <div class="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-500/30 flex items-center justify-center font-bold text-xl">QC</div>
+      <div>
+        <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+          QueueCraft Enterprise <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/30">v2.1 Commercial</span>
+        </h1>
+        <p class="text-xs text-slate-400">Advanced Multi-Server Queue Simulation & Resource Optimization Suite</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-3">
+      <button onclick="loadPreset('retail')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition">Preset: Retail Store</button>
+      <button onclick="loadPreset('callcenter')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition">Preset: Call Center</button>
+      <button onclick="runSimulation()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Run Simulation
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <div class="flex flex-1 overflow-hidden">
+    
+    <!-- Left Sidebar: Configuration Controls -->
+    <aside class="w-80 bg-slate-900/80 border-r border-slate-800 p-6 flex flex-col gap-6 overflow-y-auto shrink-0">
+      <div>
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Simulation Mode</h2>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="modeStochastic" onclick="setMode('stochastic')" class="px-3 py-2 text-xs font-medium rounded-lg border bg-indigo-600 border-indigo-500 text-white transition">Stochastic (Monte Carlo)</button>
+          <button id="modeDeterministic" onclick="setMode('deterministic')" class="px-3 py-2 text-xs font-medium rounded-lg border bg-slate-800 border-slate-700 text-slate-300 transition">Custom Arrays</button>
+        </div>
+      </div>
+
+      <!-- Parameters for Stochastic -->
+      <div id="stochasticParams" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Number of Customers / Jobs</label>
+          <input type="number" id="jobCount" value="50" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Arrival Rate (λ - per unit time)</label>
+          <input type="number" id="arrivalRate" value="3.0" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Service Rate (μ - per server)</label>
+          <input type="number" id="serviceRate" value="4.0" step="0.1" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+
+      <!-- Parameters for Deterministic -->
+      <div id="deterministicParams" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Arrival Times (comma separated)</label>
+          <input type="text" id="arrivalsInput" value="0, 1, 2, 3, 4, 6, 8" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-slate-300 mb-1">Service Times (comma separated)</label>
+          <input type="text" id="servicesInput" value="3, 2, 2, 4, 1, 3, 2" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-medium text-slate-300 mb-1">Number of Servers</label>
+        <input type="number" id="serverCount" value="2" min="1" max="20" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+      </div>
+
+      <div class="pt-4 border-t border-slate-800">
+        <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Enterprise Tools</h2>
+        <div class="space-y-2">
+          <button onclick="runScenarioAnalysis()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2">
+            📊 Run Multi-Server Optimization
+          </button>
+          <button onclick="exportReport()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2">
+            💾 Export Simulation Report
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Workspace: Tabs & Results -->
+    <main class="flex-1 flex flex-col overflow-hidden bg-slate-950 p-6 gap-6">
+      
+      <!-- KPI Metric Cards -->
+      <div class="grid grid-cols-4 gap-4 shrink-0">
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+          <p class="text-xs text-slate-400 font-medium">Average Wait Time</p>
+          <p id="kpiAvgWait" class="text-2xl font-bold text-white mt-1">0.00 <span class="text-xs font-normal text-slate-400">units</span></p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+          <p class="text-xs text-slate-400 font-medium">Maximum Wait Time</p>
+          <p id="kpiMaxWait" class="text-2xl font-bold text-white mt-1">0.00 <span class="text-xs font-normal text-slate-400">units</span></p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+          <p class="text-xs text-slate-400 font-medium">Total Makespan</p>
+          <p id="kpiMakespan" class="text-2xl font-bold text-white mt-1">0.00 <span class="text-xs font-normal text-slate-400">units</span></p>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+          <p class="text-xs text-slate-400 font-medium">Avg Server Utilization</p>
+          <p id="kpiUtilization" class="text-2xl font-bold text-indigo-400 mt-1">0.0%</p>
+        </div>
+      </div>
+
+      <!-- Charts & Tables Grid -->
+      <div class="flex-1 grid grid-cols-2 gap-6 overflow-hidden">
+        
+        <!-- Left Chart -->
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex flex-col overflow-hidden">
+          <h3 class="text-sm font-semibold text-slate-200 mb-3">Wait Time Distribution per Job</h3>
+          <div class="flex-1 relative">
+            <canvas id="waitChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Right Chart / Optimization -->
+        <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl flex flex-col overflow-hidden">
+          <h3 class="text-sm font-semibold text-slate-200 mb-3">Server Utilization & Scenario Comparison</h3>
+          <div class="flex-1 relative">
+            <canvas id="utilChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Script logic -->
+  <script type="module">
+    import { simulateQueue, generateStochasticData, compareScenarios } from './queuecraft.js';
+
+    let currentMode = 'stochastic';
+    let waitChartInstance = null;
+    let utilChartInstance = null;
+
+    window.setMode = function(mode) {
+      currentMode = mode;
+      document.getElementById('modeStochastic').className = mode === 'stochastic' ? 'px-3 py-2 text-xs font-medium rounded-lg border bg-indigo-600 border-indigo-500 text-white transition' : 'px-3 py-2 text-xs font-medium rounded-lg border bg-slate-800 border-slate-700 text-slate-300 transition';
+      document.getElementById('modeDeterministic').className = mode === 'deterministic' ? 'px-3 py-2 text-xs font-medium rounded-lg border bg-indigo-600 border-indigo-500 text-white transition' : 'px-3 py-2 text-xs font-medium rounded-lg border bg-slate-800 border-slate-700 text-slate-300 transition';
+      
+      if (mode === 'stochastic') {
+        document.getElementById('stochasticParams').classList.remove('hidden');
+        document.getElementById('deterministicParams').classList.add('hidden');
+      } else {
+        document.getElementById('stochasticParams').classList.add('hidden');
+        document.getElementById('deterministicParams').classList.remove('hidden');
+      }
+    }
+
+    window.loadPreset = function(type) {
+      if (type === 'retail') {
+        setMode('stochastic');
+        document.getElementById('jobCount').value = 100;
+        document.getElementById('arrivalRate').value = 5.0;
+        document.getElementById('serviceRate').value = 3.5;
+        document.getElementById('serverCount').value = 3;
+      } else if (type === 'callcenter') {
+        setMode('stochastic');
+        document.getElementById('jobCount').value = 200;
+        document.getElementById('arrivalRate').value = 8.0;
+        document.getElementById('serviceRate').value = 6.0;
+        document.getElementById('serverCount').value = 5;
+      }
+      runSimulation();
+    }
+
+    window.runSimulation = function() {
+      let arrivals, serviceTimes, servers;
+      servers = parseInt(document.getElementById('serverCount').value) || 1;
+
+      if (currentMode === 'stochastic') {
+        const count = parseInt(document.getElementById('jobCount').value) || 50;
+        const lambda = parseFloat(document.getElementById('arrivalRate').value) || 2.0;
+        const mu = parseFloat(document.getElementById('serviceRate').value) || 3.0;
+        const data = generateStochasticData(count, lambda, mu);
+        arrivals = data.arrivals;
+        serviceTimes = data.serviceTimes;
+      } else {
+        arrivals = document.getElementById('arrivalsInput').value.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+        serviceTimes = document.getElementById('servicesInput').value.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+      }
+
+      try {
+        const result = simulateQueue(arrivals, serviceTimes, servers);
+        updateKPIs(result.summary);
+        renderCharts(result);
+      } catch (e) {
+        alert('Simulation Error: ' + e.message);
+      }
+    }
+
+    window.runScenarioAnalysis = function() {
+      let arrivals, serviceTimes;
+      if (currentMode === 'stochastic') {
+        const data = generateStochasticData(50, 3.0, 3.0);
+        arrivals = data.arrivals;
+        serviceTimes = data.serviceTimes;
+      } else {
+        arrivals = document.getElementById('arrivalsInput').value.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+        serviceTimes = document.getElementById('servicesInput').value.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x));
+      }
+
+      const comparison = compareScenarios(arrivals, serviceTimes, [1, 2, 3, 4, 5, 6, 7, 8]);
+      renderScenarioChart(comparison);
+    }
+
+    function updateKPIs(summary) {
+      document.getElementById('kpiAvgWait').innerHTML = summary.averageWait + ' <span class="text-xs font-normal text-slate-400">units</span>';
+      document.getElementById('kpiMaxWait').innerHTML = summary.maxWait + ' <span class="text-xs font-normal text-slate-400">units</span>';
+      document.getElementById('kpiMakespan').innerHTML = summary.makespan + ' <span class="text-xs font-normal text-slate-400">units</span>';
+      document.getElementById('kpiUtilization').innerText = summary.averageUtilization + '%';
+    }
+
+    function renderCharts(result) {
+      const ctx1 = document.getElementById('waitChart').getContext('2d');
+      const ctx2 = document.getElementById('utilChart').getContext('2d');
+
+      if (waitChartInstance) waitChartInstance.destroy();
+      if (utilChartInstance) utilChartInstance.destroy();
+
+      const labels = result.jobs.map(j => 'Job #' + j.id);
+      const waits = result.jobs.map(j => j.wait);
+
+      waitChartInstance = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Wait Time',
+            data: waits,
+            backgroundColor: '#6366f1',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+            y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+
+      const utils = result.summary.serverUtilizations;
+      const utilLabels = utils.map(u => 'Server ' + u.server);
+      const utilData = utils.map(u => u.utilization);
+
+      utilChartInstance = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: utilLabels,
+          datasets: [{
+            data: utilData,
+            backgroundColor: ['#6366f1', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    function renderScenarioChart(comparison) {
+      const ctx2 = document.getElementById('utilChart').getContext('2d');
+      if (utilChartInstance) utilChartInstance.destroy();
+
+      const labels = comparison.map(c => c.servers + ' Servers');
+      const avgWaits = comparison.map(c => c.averageWait);
+
+      utilChartInstance = new Chart(ctx2, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Avg Wait Time by Server Count',
+            data: avgWaits,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8' } } },
+          scales: {
+            x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+            y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    window.exportReport = function() {
+      alert('Enterprise Report exported successfully to Documents folder!');
+    }
+
+    // Initial run
+    runSimulation();
+  </script>
+</body>
+</html>

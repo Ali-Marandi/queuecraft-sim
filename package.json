@@ -1,10 +1,38 @@
 {
   "name": "queuecraft-sim",
-  "version": "0.1.0",
+  "version": "2.1.0",
   "type": "module",
-  "description": "Deterministic multi-server queue simulator",
+  "description": "Enterprise-grade multi-server queue simulation suite with desktop GUI",
+  "main": "main.js",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "start": "electron .",
+    "build:win": "electron-builder --win --x64"
   },
+  "build": {
+    "appId": "com.queuecraft.enterprise",
+    "productName": "QueueCraft Enterprise",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": ["nsis", "portable"]
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "queuecraft.js",
+      "package.json"
+    ]
+  },
+  "dependencies": {
+    "lucide-react": "^1.16.0",
+    "recharts": "^2.15.0"
+  },
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "author": "Ali Marandi & Manus AI",
   "license": "MIT"
 }

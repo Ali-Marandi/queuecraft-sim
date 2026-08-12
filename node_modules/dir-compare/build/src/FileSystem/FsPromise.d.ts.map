@@ -1,0 +1,1 @@
+{"version":3,"file":"FsPromise.d.ts","sourceRoot":"","sources":["../../../src/FileSystem/FsPromise.ts"],"names":[],"mappings":";AAEA,KAAK,SAAS,GAAG,MAAM,CAAA;AAEvB,eAAO,MAAM,SAAS;kBACJ,MAAM,GAAG,QAAQ,MAAM,EAAE,CAAC;aAW/B,MAAM,UAAU,MAAM,UAAU,MAAM,UAAU,MAAM,YAAY,MAAM,GAAG,IAAI,GAAG,QAAQ,SAAS,CAAC;CAWhH,CAAA"}

@@ -1,0 +1,15 @@
+import ArrayFormatBase from './ArrayFormatBase.js';
+import FormatBase from './FormatBase.js';
+import ImageDataDirectoryArray, { ImageDataDirectory } from './ImageDataDirectoryArray.js';
+import ImageDirectoryEntry from './ImageDirectoryEntry.js';
+import ImageDosHeader from './ImageDosHeader.js';
+import ImageFileHeader from './ImageFileHeader.js';
+import ImageNtHeaders from './ImageNtHeaders.js';
+import ImageOptionalHeader from './ImageOptionalHeader.js';
+import ImageOptionalHeader64 from './ImageOptionalHeader64.js';
+import ImageSectionHeaderArray, { ImageSectionHeader } from './ImageSectionHeaderArray.js';
+export { ArrayFormatBase, FormatBase, ImageDataDirectory, ImageDataDirectoryArray, ImageDirectoryEntry, ImageDosHeader, ImageFileHeader, ImageNtHeaders, ImageOptionalHeader, ImageOptionalHeader64, ImageSectionHeader, ImageSectionHeaderArray, };
+export declare function getImageDosHeader(bin: ArrayBuffer): ImageDosHeader;
+export declare function getImageNtHeadersByDosHeader(bin: ArrayBuffer, dosHeader: ImageDosHeader): ImageNtHeaders;
+export declare function getImageSectionHeadersByNtHeaders(bin: ArrayBuffer, dosHeader: ImageDosHeader, ntHeaders: ImageNtHeaders): ImageSectionHeaderArray;
+export declare function findImageSectionBlockByDirectoryEntry(bin: ArrayBuffer, dosHeader: ImageDosHeader, ntHeaders: ImageNtHeaders, entryType: ImageDirectoryEntry): ArrayBuffer | null;

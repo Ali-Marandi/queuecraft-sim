@@ -1,0 +1,16 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.queuecraft.enterprise
+productName: QueueCraft Enterprise
+win:
+  target:
+    - nsis
+    - portable
+files:
+  - filter:
+      - main.js
+      - index.html
+      - queuecraft.js
+      - package.json
+electronVersion: 43.4.0

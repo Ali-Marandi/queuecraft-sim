@@ -1,0 +1,47 @@
+name: Build and Release Windows App
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyInstaller and Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller pywebview
+
+      - name: Build Windows Executable (.exe)
+        run: |
+          pyinstaller --noconsole --onefile --name QueueCraftEnterprise app.py
+
+      - name: Verify Executable
+        run: |
+          dir dist
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QueueCraft-Enterprise-Windows
+          path: dist/QueueCraftEnterprise.exe
+
+      - name: Create GitHub Release & Upload Asset
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/QueueCraftEnterprise.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

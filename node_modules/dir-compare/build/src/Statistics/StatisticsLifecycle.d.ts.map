@@ -1,0 +1,1 @@
+{"version":3,"file":"StatisticsLifecycle.d.ts","sourceRoot":"","sources":["../../../src/Statistics/StatisticsLifecycle.ts"],"names":[],"mappings":"AAAA,OAAO,EAAyB,iBAAiB,EAA8B,UAAU,EAAqB,MAAM,IAAI,CAAA;AACxH,OAAO,EAAE,UAAU,EAAE,MAAM,eAAe,CAAA;AAE1C;;GAEG;AACH,eAAO,MAAM,mBAAmB;uBACT,UAAU,GAAG,iBAAiB;0CA2CX,iBAAiB,WAAW,UAAU,GAAG,UAAU;CAyB5F,CAAA"}
