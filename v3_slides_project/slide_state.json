@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "title": "QueueCraft Enterprise AI v3.0: The Future of Operational Intelligence",
+    "created": 1786572709.646,
+    "last_updated": 1786572756.009,
+    "total_slides": 5
+  },
+  "slides": [
+    {
+      "id": "v3_slide_1",
+      "state": "edited",
+      "pageNum": 1
+    },
+    {
+      "id": "v3_slide_2",
+      "state": "edited",
+      "pageNum": 2
+    },
+    {
+      "id": "v3_slide_3",
+      "state": "edited",
+      "pageNum": 3
+    },
+    {
+      "id": "v3_slide_4",
+      "state": "edited",
+      "pageNum": 4
+    },
+    {
+      "id": "v3_slide_5",
+      "state": "edited",
+      "pageNum": 5
+    }
+  ],
+  "outline": [
+    {
+      "id": "v3_slide_1",
+      "title": "QueueCraft Enterprise AI v3.0: The Future of Operational Intelligence",
+      "summary": "Transitioning from reactive simulation to proactive operational intelligence with integrated machine learning.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "v3_slide_2",
+      "title": "Predictive Load Forecasting via Polynomial Regression Models",
+      "summary": "High-confidence traffic peak prediction using advanced mathematical modeling.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "v3_slide_3",
+      "title": "Autonomous Staffing Recommendations & Resource Optimization",
+      "summary": "Dynamic staffing suggestions based on predicted arrival rates and operational costs.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "v3_slide_4",
+      "title": "Real-Time Digital Twin Dashboard & Visual Monitoring",
+      "summary": "Live visual representation of simulated environments for immediate tactical intervention.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "v3_slide_5",
+      "title": "Strategic Roadmap: Version 3.5 and Beyond",
+      "summary": "Future integrations with cloud collaboration and LLM-powered data analysis.",
+      "image_plan": "Use a suitable image if needed"
+    }
+  ]
+}

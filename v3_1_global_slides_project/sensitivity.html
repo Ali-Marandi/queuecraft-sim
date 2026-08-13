@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0}.slide-container{width:1280px;min-height:720px;background:#0a1729;color:#eef6ff;font-family:Arial,Helvetica,sans-serif}.frame{min-height:720px;padding-top:52px;padding-left:82px;padding-right:82px}.kicker{font-size:14px;letter-spacing:2.4px;text-transform:uppercase;color:#74d4ff;font-weight:700}.title{font-size:41px;letter-spacing:-1px;margin-top:12px}.lead{font-size:18px;line-height:1.42;color:#afc0d2;margin-top:12px;max-width:900px}.body-grid{display:grid;grid-template-columns:735px 1fr;gap:48px;margin-top:30px}.chart-zone{height:360px;border-top:1px solid #294057;padding-top:12px}.chart-zone img{width:700px;height:320px;object-fit:contain;background:#f8fafc}.side{height:360px;border-top:1px solid #294057;padding-top:12px}.side h2{font-size:20px;color:#dceefb}.rule{padding-top:21px;margin-top:17px;border-top:1px solid #294057}.rule:first-of-type{border-top:none}.rule .number{font-size:13px;letter-spacing:1.4px;color:#74d4ff;text-transform:uppercase}.rule h3{font-size:19px;margin-top:6px}.rule p{font-size:15px;line-height:1.4;color:#b5c5d5;margin-top:8px;max-width:310px}.conclusion{margin-top:18px;border-top:1px solid #294057;padding-top:17px;font-size:20px;line-height:1.35;color:#e8f3fc}.conclusion strong{color:#f3b640}.footnote{font-size:12px;color:#6f8ba4;letter-spacing:.4px;margin-top:15px}
+</style>
+</head>
+<body><div class="slide-container"><div class="frame">
+<div class="kicker">Sensitivity analysis</div>
+<div class="title">Expose risk before it becomes disruption.</div>
+<p class="lead">QueueCraft tests demand and service-time uncertainty around the baseline, then compares expected delay and tail-risk exposure under the same Monte Carlo conditions.</p>
+<div class="body-grid">
+  <div class="chart-zone"><img src="/home/ubuntu/queuecraft-sim/assets/analytics/sensitivity_heatmap_illustrative.png" alt="Illustrative sensitivity heatmap showing expected end-to-end mean wait" /></div>
+  <div class="side"><h2>How to read the scenario grid</h2>
+    <div class="rule"><div class="number">01 · Demand</div><h3>Move across the columns</h3><p>Each step raises or lowers arrival demand relative to the baseline operating case.</p></div>
+    <div class="rule"><div class="number">02 · Service</div><h3>Move down the rows</h3><p>Each step changes service duration to reveal the effect of slower or faster throughput.</p></div>
+    <div class="rule"><div class="number">03 · Risk</div><h3>Use mean and P95 together</h3><p>Expected wait describes typical exposure; P95 highlights the unfavorable but plausible operating tail.</p></div>
+  </div>
+</div>
+<div class="conclusion"><strong>Decision use:</strong> identify the high-risk cells, then choose a deliberate capacity buffer rather than staffing only for the average case.</div>
+<div class="footnote">ILLUSTRATIVE INTERNAL SAMPLE SCENARIO · VALUES ARE NOT CUSTOMER OPERATING DATA</div>
+</div></div></body></html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #020617; font-family: system-ui, -apple-system, sans-serif; color: #f8fafc; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0f172a;
+        padding-top: 60px;
+        padding-left: 80px;
+        padding-right: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+      .header-area {
+        margin-bottom: 40px;
+      }
+      .header-area h2 {
+        font-size: 38px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 12px;
+      }
+      .header-area p {
+        font-size: 18px;
+        color: #94a3b8;
+      }
+      .pipeline-viz {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 20px;
+        margin-bottom: 50px;
+        background: #1e293b;
+        border: 1px solid #334155;
+        padding: 40px;
+      }
+      .tier-stage {
+        background: #0f172a;
+        border: 2px solid #6366f1;
+        padding: 20px;
+        width: 280px;
+        text-align: center;
+      }
+      .tier-stage h4 {
+        color: #818cf8;
+        font-size: 18px;
+        margin-bottom: 8px;
+      }
+      .tier-stage p {
+        font-size: 14px;
+        color: #94a3b8;
+      }
+      .arrow {
+        color: #475569;
+        font-size: 24px;
+      }
+      .details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+      }
+      .detail-item h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 16px;
+        border-left: 4px solid #6366f1;
+        padding-left: 15px;
+      }
+      .detail-item p {
+        font-size: 16px;
+        line-height: 1.7;
+        color: #cbd5e1;
+      }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+      <div class="header-area">
+        <h2>Advanced Multi-Tier Queuing Pipeline</h2>
+        <p>Modeling complex sequential operational workflows where stage output feeds subsequent tiers.</p>
+      </div>
+
+      <div class="pipeline-viz">
+        <div class="tier-stage">
+          <h4>Tier 1: Triage</h4>
+          <p>Initial Arrival & Sorting</p>
+        </div>
+        <div class="arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
+        <div class="tier-stage">
+          <h4>Tier 2: Processing</h4>
+          <p>Core Service Execution</p>
+        </div>
+        <div class="arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
+        <div class="tier-stage">
+          <h4>Tier 3: Checkout</h4>
+          <p>Final Delivery & Exit</p>
+        </div>
+      </div>
+
+      <div class="details-grid">
+        <div class="detail-item">
+          <h3>Complex Workflow Modeling</h3>
+          <p>Modern enterprise workflows rarely consist of a single isolated queue. QueueCraft allows organizations to model complex sequential pipelines where the completion output of one operational stage serves as the direct arrival input for the next.</p>
+        </div>
+        <div class="detail-item">
+          <h3>Bottleneck Isolation</h3>
+          <p>This capability is vital for optimizing multi-stage hospital workflows, complex manufacturing assembly lines, and multi-tier customer service desks, allowing analysts to pinpoint exact stage constraints and resource starving.</p>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

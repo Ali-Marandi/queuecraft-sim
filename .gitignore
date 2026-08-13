@@ -1,0 +1,27 @@
+# Python bytecode and local environments
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node.js dependencies and build output
+node_modules/
+build/
+dist/
+release/
+
+# Local configuration and temporary credentials
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.pem
+.git-askpass-temp.sh
+
+# OS and editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0}
+.slide-container{width:1280px;min-height:720px;background:#0a1729;color:#eef6ff;font-family:Arial,Helvetica,sans-serif}
+.frame{min-height:720px;padding-top:58px;padding-left:82px;padding-right:82px;position:relative}
+.kicker{font-size:14px;letter-spacing:2.4px;text-transform:uppercase;color:#74d4ff;font-weight:700}
+.title{font-size:42px;letter-spacing:-1px;margin-top:14px}
+.lead{font-size:19px;line-height:1.42;color:#afc0d2;margin-top:14px;max-width:835px}
+.layout{display:grid;grid-template-columns:265px 1fr;gap:56px;margin-top:58px;min-height:355px}
+.manifesto{border-top:2px solid #5bd0ff;padding-top:22px}
+.manifesto .large{font-size:31px;line-height:1.16;letter-spacing:-.6px;color:#e9f6ff}
+.manifesto p{font-size:16px;line-height:1.45;color:#9db4c9;margin-top:20px}
+.pillars{display:grid;grid-template-columns:1fr 1fr 1fr;column-gap:30px;position:relative}
+.pillars:before{content:"";position:absolute;height:1px;background:#294057;left:0;right:0;top:71px}
+.pillar{position:relative;padding-top:95px}
+.pillar:not(:last-child){border-right:1px solid #294057;padding-right:28px}
+.pillar:not(:first-child){padding-left:28px}
+.marker{position:absolute;top:61px;left:0;width:20px;height:20px;border-radius:50%;background:#5bd0ff;box-shadow:0 0 16px rgba(91,208,255,.55)}
+.pillar:nth-child(2) .marker{background:#83d7f4}.pillar:nth-child(3) .marker{background:#f3b640;box-shadow:0 0 16px rgba(243,182,64,.55)}
+.pillar h2{font-size:23px;line-height:1.15;color:#edf7ff}.pillar p{font-size:16px;line-height:1.44;color:#b2c3d5;margin-top:15px}.tag{display:block;color:#74d4ff;font-size:12px;letter-spacing:1.6px;text-transform:uppercase;font-weight:700;margin-top:22px}.pillar:nth-child(3) .tag{color:#f3b640}
+.statement{border-top:1px solid #294057;padding-top:20px;margin-top:34px;font-size:22px;line-height:1.36;color:#e4f1fb}.statement strong{color:#5bd0ff}.footer{position:absolute;left:82px;bottom:34px;font-size:12px;letter-spacing:1px;color:#58718b}
+</style>
+</head>
+<body>
+<div class="slide-container"><div class="frame">
+  <div class="kicker">Commercial &amp; global readiness</div>
+  <div class="title">Global-ready by design, not by translation afterthought.</div>
+  <p class="lead">Localization, local-first storage, reproducibility, and auditability form the enterprise foundation for QueueCraft deployments.</p>
+  <div class="layout">
+    <div class="manifesto">
+      <div class="large">A global product must adapt to language, data governance, and operating context.</div>
+      <p>QueueCraft is built so that each recommendation can remain understandable and reviewable wherever it is deployed.</p>
+    </div>
+    <div class="pillars">
+      <div class="pillar"><div class="marker"></div><h2>Language-aware experience</h2><p>English and Persian language packs, persistent selection, and RTL-ready presentation are embedded in the desktop workflow.</p><span class="tag">Localization foundation</span></div>
+      <div class="pillar"><div class="marker"></div><h2>Local-first control</h2><p>Source data and operational scenarios can remain on the customer device within an offline-capable, locally bundled application.</p><span class="tag">Deployment flexibility</span></div>
+      <div class="pillar"><div class="marker"></div><h2>Auditable decisions</h2><p>Scenario fingerprints, shared random seeds, and explicit SLA assessments preserve a traceable decision record.</p><span class="tag">Governance foundation</span></div>
+    </div>
+  </div>
+  <div class="statement"><strong>Enterprise principle:</strong> recommendations should be explainable, reproducible, and subject to human approval.</div>
+  <div class="footer">LOCALIZATION · LOCAL-FIRST DATA · REPRODUCIBLE ANALYTICS · AUDITABILITY</div>
+</div></div>
+</body>
+</html>

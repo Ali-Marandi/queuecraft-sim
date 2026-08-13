@@ -1,38 +1,21 @@
 {
-  "name": "queuecraft-sim",
-  "version": "2.1.0",
+  "name": "queuecraft-enterprise-ai",
+  "version": "3.2.0",
   "type": "module",
-  "description": "Enterprise-grade multi-server queue simulation suite with desktop GUI",
-  "main": "main.js",
+  "description": "Enterprise queue simulation, resilience modeling, local SLO monitoring, and capacity decision suite.",
   "scripts": {
     "test": "node --test",
-    "start": "electron .",
-    "build:win": "electron-builder --win --x64"
-  },
-  "build": {
-    "appId": "com.queuecraft.enterprise",
-    "productName": "QueueCraft Enterprise",
-    "directories": {
-      "output": "dist"
-    },
-    "win": {
-      "target": ["nsis", "portable"]
-    },
-    "files": [
-      "main.js",
-      "index.html",
-      "queuecraft.js",
-      "package.json"
-    ]
-  },
-  "dependencies": {
-    "lucide-react": "^1.16.0",
-    "recharts": "^2.15.0"
-  },
-  "devDependencies": {
-    "electron": "^34.0.0",
-    "electron-builder": "^25.1.8"
+    "test:ai": "python -m unittest -v test_ai_monte_carlo.py test_priority_queue.py test_scenario_manager.py test_data_import.py test_decision_analytics.py test_cloud_cluster_scaling.py test_multi_region_failover.py test_distributed_load_testing.py test_live_slo_monitoring.py test_distributed_stress_scenarios.py test_generative_queue_optimizer.py test_app_v4_bridge.py",
+    "test:stress": "python stress_test_scenarios.py",
+    "build:assets": "tailwindcss -i ./assets/tailwind.input.css -o ./assets/vendor/tailwind.css --minify && node ./scripts/copy-vendor-assets.mjs",
+    "build:windows": "powershell -ExecutionPolicy Bypass -File .\\build_windows.ps1"
   },
   "author": "Ali Marandi & Manus AI",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "chart.js": "^4.4.7"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
 }

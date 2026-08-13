@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #020617; font-family: 'Segoe UI', Roboto, sans-serif; color: #f8fafc; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #020617;
+        padding-top: 60px;
+        padding-left: 80px;
+        padding-right: 80px;
+        display: flex;
+        flex-direction: column;
+      }
+      .header {
+        margin-bottom: 30px;
+        border-left: 4px solid #06b6d4;
+        padding-left: 20px;
+      }
+      h2 { font-size: 42px; font-weight: 800; color: #ffffff; margin-bottom: 8px; }
+      .header p { font-size: 20px; color: #94a3b8; }
+
+      .twin-viz-zone {
+        background: #0f172a;
+        border: 1px solid #334155;
+        height: 340px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .viz-overlay {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        background: rgba(6, 182, 212, 0.1);
+        border: 1px solid #06b6d4;
+        padding: 10px 15px;
+        font-family: monospace;
+        font-size: 12px;
+        color: #06b6d4;
+      }
+      .mock-layout {
+        width: 80%;
+        height: 60%;
+        border: 2px dashed #1e293b;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+      }
+      .server-node {
+        width: 100px;
+        height: 100px;
+        border: 2px solid #6366f1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #1e1b4b;
+      }
+      .server-node i { font-size: 24px; color: #818cf8; margin-bottom: 5px; }
+      .server-node span { font-size: 10px; font-weight: 700; }
+
+      .metrics-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 30px;
+      }
+      .metric-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        padding: 25px;
+      }
+      .metric-card h3 {
+        font-size: 18px;
+        color: #818cf8;
+        margin-bottom: 12px;
+        font-weight: 700;
+      }
+      .metric-card p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #cbd5e1;
+      }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+      <div class="header">
+        <h2>Real-Time Digital Twin Dashboard</h2>
+        <p>Live Visual Monitoring for Immediate Tactical Intervention</p>
+      </div>
+
+      <div class="twin-viz-zone">
+        <div class="viz-overlay">LIVE SIMULATION FEED :: ACTIVE</div>
+        <div class="mock-layout">
+          <div class="server-node"><i class="fas fa-server"></i><span>SERVER 01</span></div>
+          <div class="server-node" style="border-color: #06b6d4;"><i class="fas fa-server"></i><span>SERVER 02</span></div>
+          <div class="server-node"><i class="fas fa-server"></i><span>SERVER 03</span></div>
+          <div class="server-node"><i class="fas fa-server"></i><span>SERVER 04</span></div>
+        </div>
+      </div>
+
+      <div class="metrics-row">
+        <div class="metric-card">
+          <h3>Visual Monitoring</h3>
+          <p>Provides a live, visual representation of simulated operational environments, allowing stakeholders to observe queue buildup as it happens.</p>
+        </div>
+        <div class="metric-card">
+          <h3>Tactical Intervention</h3>
+          <p>Enables immediate tactical adjustments by bridging the gap between abstract mathematical data and tangible operational reality.</p>
+        </div>
+        <div class="metric-card">
+          <h3>Real-Time Analytics</h3>
+          <p>Observe server utilization and stage completion rates dynamically, facilitating faster response to emerging bottlenecks.</p>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

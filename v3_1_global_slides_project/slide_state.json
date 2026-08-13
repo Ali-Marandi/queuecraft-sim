@@ -1,0 +1,100 @@
+{
+  "project_info": {
+    "title": "QueueCraft Enterprise AI v3.1",
+    "created": 1786649785.319,
+    "last_updated": 1786649973.508,
+    "total_slides": 8
+  },
+  "slides": [
+    {
+      "id": "cover",
+      "state": "edited",
+      "pageNum": 1
+    },
+    {
+      "id": "decision_gap",
+      "state": "edited",
+      "pageNum": 2
+    },
+    {
+      "id": "data_quality",
+      "state": "edited",
+      "pageNum": 3
+    },
+    {
+      "id": "sensitivity",
+      "state": "edited",
+      "pageNum": 4
+    },
+    {
+      "id": "pareto",
+      "state": "edited",
+      "pageNum": 5
+    },
+    {
+      "id": "global_ready",
+      "state": "edited",
+      "pageNum": 6
+    },
+    {
+      "id": "roadmap",
+      "state": "edited",
+      "pageNum": 7
+    },
+    {
+      "id": "closing",
+      "state": "edited",
+      "pageNum": 8
+    }
+  ],
+  "outline": [
+    {
+      "id": "cover",
+      "title": "QueueCraft Enterprise AI v3.1",
+      "summary": "Reliable Data. Transparent Decisions. Global-Ready Queue Operations.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "decision_gap",
+      "title": "Trust Begins Before Simulation",
+      "summary": "Why operational decisions fail when data quality, uncertainty, and capacity choices are disconnected.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "data_quality",
+      "title": "Data Quality Is a First-Class Control",
+      "summary": "CSV/XLSX ingestion validates and standardizes operational arrival data before analysis.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "sensitivity",
+      "title": "Expose Risk Before It Becomes Disruption",
+      "summary": "Sensitivity analysis tests demand and service-time shifts around a baseline scenario.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "pareto",
+      "title": "Make Cost–Service Trade-offs Explicit",
+      "summary": "Pareto frontier analysis retains non-dominated staffing alternatives and surfaces the recommended plan.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "global_ready",
+      "title": "Global-Ready by Design",
+      "summary": "Localization, local-first storage, reproducibility, and auditability form the enterprise foundation.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "roadmap",
+      "title": "Scale Through Trust and Control",
+      "summary": "A commercial roadmap focused on data reliability, collaboration, and human-approved automation.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "closing",
+      "title": "From Queue Metrics to Confident Decisions",
+      "summary": "A concise close: validated data, visible risk, and cost-aware capacity planning in one workflow.",
+      "image_plan": "Use a suitable image if needed"
+    }
+  ]
+}

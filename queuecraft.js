@@ -1,6 +1,6 @@
 /**
- * QueueCraft Enterprise Simulation Engine
- * Supports deterministic and stochastic (Poisson/Exponential/Normal) multi-server queue simulations.
+ * QueueCraft Enterprise Simulation Engine v2.2
+ * Supports deterministic, stochastic, and multi-tier queue simulations.
  */
 
 export function simulateQueue(arrivals, serviceTimes, servers = 1) {
@@ -14,7 +14,7 @@ export function simulateQueue(arrivals, serviceTimes, servers = 1) {
 
   const available = Array(servers).fill(0);
   const serverLoad = Array(servers).fill(0);
-  
+
   const jobs = arrivals.map((arrival, index) => {
     let server = 0;
     for (let i = 1; i < servers; i += 1) {
@@ -25,7 +25,7 @@ export function simulateQueue(arrivals, serviceTimes, servers = 1) {
     const start = Math.max(arrival, available[server]);
     const serviceTime = serviceTimes[index];
     const end = start + serviceTime;
-    
+
     serverLoad[server] += serviceTime;
     available[server] = end;
 
@@ -44,24 +44,14 @@ export function simulateQueue(arrivals, serviceTimes, servers = 1) {
   const totalWait = jobs.reduce((sum, job) => sum + job.wait, 0);
   const averageWait = totalWait / jobs.length;
   const maxWait = Math.max(...jobs.map(j => j.wait));
-  
-  // Calculate server utilization
+
   const serverUtilizations = serverLoad.map((load, idx) => ({
     server: idx + 1,
     busyTime: load,
-    utilization: makespan > 0 ? (load / makespan) * 100 : 0
+    utilization: makespan > 0 ? Number(((load / makespan) * 100).toFixed(2)) : 0
   }));
 
   const averageUtilization = serverUtilizations.reduce((sum, s) => sum + s.utilization, 0) / servers;
-
-  // Queue length over time sampling
-  const timelineEvents = [];
-  jobs.forEach(job => {
-    timelineEvents.push({ time: job.arrival, type: 'arrival' });
-    timelineEvents.push({ time: job.start, type: 'start' });
-    timelineEvents.push({ time: job.end, type: 'departure' });
-  });
-  timelineEvents.sort((a, b) => a.time - b.time || (a.type === 'departure' ? -1 : 1));
 
   return {
     jobs,
@@ -77,13 +67,57 @@ export function simulateQueue(arrivals, serviceTimes, servers = 1) {
 }
 
 /**
- * Generate stochastic arrival and service times using exponential distribution (Monte Carlo simulation)
+ * Multi-Tier Queue Simulation (e.g., Stage 1: Reception, Stage 2: Processing, Stage 3: Quality Check/Checkout)
  */
+export function simulateMultiTierQueue(arrivals, tierConfigs) {
+  // tierConfigs is an array of objects: [{ name: 'Reception', servers: 2, serviceMultiplier: 1.0 }, ...]
+  if (!tierConfigs || tierConfigs.length === 0) {
+    throw new Error("At least one tier configuration is required");
+  }
+
+  let currentArrivals = arrivals;
+  let tierResults = [];
+
+  tierConfigs.forEach((tier, idx) => {
+    // Generate service times for this tier based on count
+    const serviceTimes = currentArrivals.map(() => {
+      // Exponential service distribution default
+      const base = -Math.log(1 - Math.random()) * (tier.avgService || 2.0);
+      return Math.max(0.2, Number((base * (tier.serviceMultiplier || 1.0)).toFixed(2)));
+    });
+
+    const result = simulateQueue(currentArrivals, serviceTimes, tier.servers || 1);
+    tierResults.push({
+      tierName: tier.name || `Tier ${idx + 1}`,
+      servers: tier.servers,
+      summary: result.summary,
+      jobs: result.jobs
+    });
+
+    // Completion order, not original job order, determines arrivals at the next tier.
+    // Multi-server stages may finish jobs out of order; the next queue requires
+    // chronologically sorted arrival times.
+    currentArrivals = result.jobs.map(j => j.end).sort((a, b) => a - b);
+  });
+
+  const overallMakespan = tierResults[tierResults.length - 1].summary.makespan;
+  const totalAvgWait = Number((tierResults.reduce((sum, t) => sum + t.summary.averageWait, 0)).toFixed(2));
+
+  return {
+    tiers: tierResults,
+    overallSummary: {
+      totalTiers: tierConfigs.length,
+      totalJobs: arrivals.length,
+      totalAvgWait,
+      overallMakespan
+    }
+  };
+}
+
 export function generateStochasticData(count = 50, arrivalRate = 2.0, serviceRate = 3.0) {
   const arrivals = [];
   let currentArrival = 0;
   for (let i = 0; i < count; i++) {
-    // Exponential inter-arrival time: -ln(1 - U) / lambda
     const interArrival = -Math.log(1 - Math.random()) / arrivalRate;
     currentArrival += interArrival;
     arrivals.push(Number(currentArrival.toFixed(2)));
@@ -91,7 +125,6 @@ export function generateStochasticData(count = 50, arrivalRate = 2.0, serviceRat
 
   const serviceTimes = [];
   for (let i = 0; i < count; i++) {
-    // Exponential service time: -ln(1 - U) / mu
     const service = -Math.log(1 - Math.random()) / serviceRate;
     serviceTimes.push(Math.max(0.1, Number(service.toFixed(2))));
   }
@@ -99,9 +132,6 @@ export function generateStochasticData(count = 50, arrivalRate = 2.0, serviceRat
   return { arrivals, serviceTimes };
 }
 
-/**
- * Compare multiple server configurations (Scenario Analysis)
- */
 export function compareScenarios(arrivals, serviceTimes, serverCounts = [1, 2, 3, 4, 5]) {
   return serverCounts.map(servers => {
     try {

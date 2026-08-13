@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #020617; font-family: system-ui, -apple-system, sans-serif; color: #f8fafc; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0f172a;
+        padding-top: 60px;
+        padding-left: 80px;
+        padding-right: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+      .header-area {
+        margin-bottom: 36px;
+      }
+      .header-area h2 {
+        font-size: 38px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 10px;
+      }
+      .header-area p {
+        font-size: 18px;
+        color: #94a3b8;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 30px;
+      }
+      .column-box {
+        background: #1e293b;
+        border: 1px solid #334155;
+        padding: 30px;
+      }
+      .column-box h3 {
+        font-size: 20px;
+        font-weight: 700;
+        color: #818cf8;
+        margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .column-box p {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #cbd5e1;
+        margin-bottom: 14px;
+      }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+      <div class="header-area">
+        <h2>Dual Simulation Engine: Stochastic & Deterministic Modeling</h2>
+        <p>Combining probabilistic Monte Carlo rigor with exact baseline reproducibility.</p>
+      </div>
+      <div class="grid-3">
+        <div class="column-box">
+          <h3><i class="fas fa-dice"></i> Stochastic Monte Carlo</h3>
+          <p>Implementation of Poisson arrival processes and exponential service time distributions.</p>
+          <p>Allows analysts to simulate real-world operational uncertainty and stochastic variance with exceptional mathematical precision.</p>
+        </div>
+        <div class="column-box">
+          <h3><i class="fas fa-calculator"></i> Deterministic Arrays</h3>
+          <p>Exact custom arrival and service time array processing for precise baseline modeling.</p>
+          <p>Ensures repeatable benchmarking, unit testing, and historical validation across standardized operational scenarios.</p>
+        </div>
+        <div class="column-box">
+          <h3><i class="fas fa-chart-pie"></i> Comprehensive KPIs</h3>
+          <p>Instant calculation of average wait times, maximum delays, total makespan, and server workload utilization.</p>
+          <p>Provides immediate visibility into resource bottlenecks and staff efficiency metrics.</p>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

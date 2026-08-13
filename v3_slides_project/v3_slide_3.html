@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #020617; font-family: 'Segoe UI', Roboto, sans-serif; color: #f8fafc; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0f172a;
+        padding-top: 60px;
+        padding-left: 80px;
+        padding-right: 80px;
+        display: flex;
+        flex-direction: column;
+      }
+      .header {
+        margin-bottom: 40px;
+        border-right: 4px solid #6366f1;
+        padding-right: 20px;
+        text-align: right;
+      }
+      h2 { font-size: 42px; font-weight: 800; color: #ffffff; margin-bottom: 8px; }
+      .header p { font-size: 20px; color: #94a3b8; }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 50px;
+      }
+      .feature-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        padding: 30px;
+      }
+      .feature-card h3 {
+        font-size: 24px;
+        color: #818cf8;
+        margin-bottom: 15px;
+      }
+      .feature-card p {
+        font-size: 17px;
+        line-height: 1.7;
+        color: #cbd5e1;
+        margin-bottom: 15px;
+      }
+      .rec-viz {
+        background: #020617;
+        border: 1px solid #334155;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .rec-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 15px 0;
+        border-bottom: 1px solid #1e293b;
+      }
+      .rec-item:last-child { border-bottom: none; }
+      .rec-time { color: #94a3b8; font-family: monospace; }
+      .rec-val { color: #06b6d4; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+      <div class="header">
+        <h2>Autonomous Staffing Optimization</h2>
+        <p>AI-Driven Decision Support for Dynamic Resource Allocation</p>
+      </div>
+      <div class="grid">
+        <div class="feature-card">
+          <h3>Dynamic Staffing Logic</h3>
+          <p>Beyond simple forecasting, the AI engine provides dynamic staffing recommendations by calculating the optimal number of active servers for predicted arrival rates.</p>
+          <p>By balancing target wait times against operational costs, the system autonomously suggests staffing adjustments that maximize throughput while minimizing idle resource expenditure.</p>
+        </div>
+        <div class="rec-viz">
+          <h4 style="font-size:14px; color:#475569; text-transform:uppercase; margin-bottom:20px;">Staffing Recommendation Engine</h4>
+          <div class="rec-item">
+            <span class="rec-time">08:00 - 10:00</span>
+            <span class="rec-val">3 SERVERS</span>
+          </div>
+          <div class="rec-item">
+            <span class="rec-time">10:00 - 14:00 (PEAK)</span>
+            <span class="rec-val" style="color:#6366f1;">6 SERVERS</span>
+          </div>
+          <div class="rec-item">
+            <span class="rec-time">14:00 - 17:00</span>
+            <span class="rec-val">4 SERVERS</span>
+          </div>
+          <div class="rec-item">
+            <span class="rec-time">17:00 - 20:00</span>
+            <span class="rec-val">2 SERVERS</span>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

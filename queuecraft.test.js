@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { simulateQueue, generateStochasticData, compareScenarios } from "./queuecraft.js";
+import { simulateQueue, generateStochasticData, compareScenarios, simulateMultiTierQueue } from "./queuecraft.js";
 
 test("single server builds a deterministic queue", () => {
   const result = simulateQueue([0, 1, 2], [3, 2, 1]);
@@ -25,8 +25,22 @@ test("compareScenarios returns results for multiple server counts", () => {
   const arrivals = [0, 1, 2, 3, 4];
   const serviceTimes = [2, 2, 2, 2, 2];
   const comparison = compareScenarios(arrivals, serviceTimes, [1, 2, 4]);
-  
+
   assert.strictEqual(comparison.length, 3);
   assert.strictEqual(comparison[0].servers, 1);
   assert.strictEqual(comparison[2].servers, 4);
+});
+
+test("simulateMultiTierQueue correctly chains multiple stages", () => {
+  const arrivals = [0, 1, 2, 3, 4];
+  const tierConfigs = [
+    { name: "Stage 1", servers: 2, avgService: 1.0 },
+    { name: "Stage 2", servers: 2, avgService: 1.5 }
+  ];
+  const result = simulateMultiTierQueue(arrivals, tierConfigs);
+
+  assert.strictEqual(result.tiers.length, 2);
+  assert.strictEqual(result.overallSummary.totalTiers, 2);
+  assert.strictEqual(result.overallSummary.totalJobs, 5);
+  assert.ok(result.overallSummary.overallMakespan > 0);
 });

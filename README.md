@@ -1,78 +1,80 @@
-# QueueCraft Enterprise Simulation Studio
+# QueueCraft Enterprise AI
 
 <div align="center">
 
-![QueueCraft Logo](https://img.shields.io/badge/QueueCraft-Enterprise%20v2.1-indigo?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-blue?style=for-the-badge)
+![QueueCraft](https://img.shields.io/badge/QueueCraft-Enterprise%20AI%20v3.0-4f46e5?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-16a34a?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Platform-Windows%20x64-2563eb?style=for-the-badge)
 
-**Commercial-Grade Multi-Server Queue Simulation & Resource Optimization Suite**
+**Enterprise queue simulation, AI-informed risk analysis, and capacity optimization.**
 
 </div>
 
----
+## Overview
 
-## 🚀 Overview
+QueueCraft Enterprise AI is a desktop simulation and capacity-planning suite for operations teams. It models deterministic, stochastic, and serial multi-tier workflows; forecasts short-horizon arrival demand; and evaluates operational risk through repeatable Monte Carlo analysis. The product is designed for service operations, healthcare, contact centers, retail, logistics, and other environments where service-level commitments, capacity cost, and waiting-time risk must be balanced transparently.
 
-**QueueCraft Enterprise** is a high-performance, enterprise-grade discrete-event queue simulation and capacity planning software designed to rival industry-standard simulation tools (such as Rockwell Arena, Simio, and AnyLogic). Built for operations research, industrial engineering, retail traffic management, call centers, and healthcare capacity planning, QueueCraft Enterprise bridges the gap between complex mathematical queueing theory and intuitive modern desktop software.
+## Current Enterprise Capabilities
 
----
+| Capability | What it delivers |
+|---|---|
+| Deterministic and stochastic modeling | Reproducible baselines alongside sampled arrivals and service-time variation |
+| Multi-tier queue pipelines | Serial stage modeling in which departures from one tier become arrivals for the next tier |
+| AI-informed Monte Carlo risk analysis | Demand forecasting plus repeated stochastic simulation with expected and P95 wait metrics |
+| Cost-aware Auto-Scaling | Capacity recommendation under configurable wait-time SLA and per-server cost assumptions |
+| Advanced queue policy model | Non-preemptive priority classes, finite waiting capacity, rejection, abandonment, and service-level indicators |
+| Auditable scenario management | Validated local scenario documents, cryptographic fingerprints, explicit SLA assessments, and repeatable seeds |
+| Localization foundation | English and Persian interface vocabulary with persistent language selection and RTL support |
+| Offline-ready desktop bundle | Locally bundled chart/CSS assets, PyInstaller runtime collection, Inno Setup installer definition, and release workflow |
 
-## ✨ Key Enterprise Features
+## Quick Start for Developers
 
-- **Dual Simulation Modes**:
-  - **Stochastic (Monte Carlo)**: Advanced probabilistic modeling using Poisson arrival processes (exponential inter-arrival times) and exponential service time distributions.
-  - **Deterministic**: Exact custom arrival and service time array processing for precise baseline modeling.
-- **Interactive Desktop GUI**:
-  - Built with native desktop rendering (`pywebview` + Tailwind CSS + Chart.js).
-  - Modern dark-mode enterprise UI with real-time KPI metrics (Average Wait Time, Maximum Wait Time, Total Makespan, Server Utilization).
-- **Multi-Server Scenario Optimization**:
-  - Side-by-side comparative analysis across varying server counts (1 to 20 servers) to identify optimal staffing levels and prevent bottlenecks.
-- **Advanced Visualizations**:
-  - Interactive bar charts for individual job wait times.
-  - Dynamic doughnut charts for server workload distribution.
-  - Sensitivity and utilization curves.
-- **Automated CI/CD Release Pipeline**:
-  - GitHub Actions workflow that automatically cross-compiles a standalone Windows executable (`QueueCraftEnterprise.exe`) and publishes releases.
-
----
-
-## 📊 Quick Start & Installation
-
-### Option 1: Download Pre-built Windows Executable (`.exe`)
-1. Go to the [Releases](https://github.com/Ali-Marandi/queuecraft-sim/releases) page.
-2. Download `QueueCraftEnterprise.exe`.
-3. Run the application directly (no installation or Python runtime required on client machines).
-
-### Option 2: Run from Source (Python + WebUI)
 ```bash
-# Clone repository
+# Clone and enter the project
 git clone https://github.com/Ali-Marandi/queuecraft-sim.git
 cd queuecraft-sim
 
-# Install dependencies
-pip install pyinstaller pywebview
+# Python runtime dependencies
+python -m pip install -r requirements.txt
 
-# Run simulation studio GUI
+# Run the desktop app
 python app.py
 ```
 
----
+### Run the Verification Suite
 
-## 🧪 Running Tests
 ```bash
 npm test
+python -m unittest -v test_ai_monte_carlo.py test_priority_queue.py test_scenario_manager.py
+python stress_test_scenarios.py
 ```
 
----
+### Run an AI–Monte Carlo Scenario
 
-## 🏢 Commercial & Enterprise Roadmap
-- **Phase 1**: Core discrete-event engine & basic metrics ✅
-- **Phase 2**: Stochastic Monte Carlo distributions & GUI desktop app ✅
-- **Phase 3**: Multi-server scenario optimization & automated Windows build pipeline ✅
-- **Phase 4**: Real-time queue animation canvas & cloud database sync (Upcoming)
+```bash
+python ai_monte_carlo.py --input examples/hospital_ai_monte_carlo.json
+```
 
----
+### Run Capacity Optimization
 
-## 📄 License
-Distributed under the **MIT License**. See `LICENSE` for more information.
+```bash
+python ai_monte_carlo.py --input examples/hospital_staffing_optimization.json
+```
+
+## Windows Distribution
+
+For a signed Windows installer containing application dependencies, local UI assets, and runtime libraries, follow [`WINDOWS_PACKAGING_GUIDE.md`](WINDOWS_PACKAGING_GUIDE.md). On a Windows x64 build agent with Python, Node.js, and Inno Setup installed, execute:
+
+```powershell
+.\build_windows.ps1 -Version "3.0.0"
+```
+
+The installer is created under `release\`.
+
+## Commercial Development Roadmap
+
+The immediate release candidate focus is data import and validation, real-world queue policies, audit trails, and forecast drift monitoring. The medium-term roadmap covers network routing, Pareto analysis, role-based collaboration, natural-language analysis with explicit access controls, and integrations with operational systems. Full prioritization appears in [`COMMERCIAL_ROADMAP_V3.md`](COMMERCIAL_ROADMAP_V3.md).
+
+## License
+
+Distributed under the MIT License. See [`LICENSE`](LICENSE).

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0}
+.slide-container{width:1280px;min-height:720px;background:#0a1729;color:#eef6ff;font-family:Arial,Helvetica,sans-serif}
+.frame{min-height:720px;padding-top:56px;padding-left:82px;padding-right:82px}
+.kicker{font-size:14px;letter-spacing:2.4px;color:#74d4ff;text-transform:uppercase;font-weight:700}
+.title{font-size:42px;letter-spacing:-1.2px;margin-top:13px;max-width:940px}
+.lead{font-size:18px;color:#aec0d2;line-height:1.42;margin-top:13px;max-width:895px}
+.layout{display:grid;grid-template-columns:650px 1fr;gap:54px;margin-top:38px}
+.visual{height:422px;border-top:1px solid #294057;padding-top:17px}
+.visual img{width:620px;height:372px;object-fit:contain;background:#f8fafc;display:block}
+.caption{font-size:12px;color:#7f9bb3;letter-spacing:.4px;margin-top:8px}
+.insight{height:422px;border-left:1px solid #294057;padding-left:44px;padding-top:17px}
+.rule{padding-top:16px;padding-bottom:18px;border-bottom:1px solid #294057}
+.rule:first-child{padding-top:0}
+.num{font-size:13px;letter-spacing:1.5px;color:#74d4ff;font-weight:700}
+.rule h2{font-size:22px;margin-top:7px;color:#eef6ff}
+.rule p{font-size:16px;line-height:1.4;color:#b6c6d7;margin-top:9px;max-width:340px}
+.recommendation{color:#f3b640!important;font-weight:700}
+.footer{border-top:1px solid #294057;padding-top:18px;margin-top:23px;font-size:18px;color:#d8e9f7}
+.footer strong{color:#5bd0ff}
+</style>
+</head>
+<body>
+<div class="slide-container"><div class="frame">
+  <div class="kicker">Multi-objective capacity planning</div>
+  <div class="title">Make cost–service trade-offs explicit.</div>
+  <p class="lead">Pareto analysis keeps only staffing alternatives that cannot be improved on both cost and expected waiting time at once.</p>
+  <div class="layout">
+    <div class="visual">
+      <img src="/home/ubuntu/queuecraft-sim/assets/analytics/pareto_tradeoff_illustrative.png" alt="Illustrative Pareto frontier chart comparing server cost and expected end-to-end wait">
+      <div class="caption">ILLUSTRATIVE LOCAL SAMPLE SCENARIO — NOT CUSTOMER OPERATING DATA</div>
+    </div>
+    <div class="insight">
+      <div class="rule"><div class="num">01 · EVALUATE</div><h2>Test every candidate plan</h2><p>Each staffing allocation is assessed using the same Monte Carlo seed so the comparison isolates the capacity choice.</p></div>
+      <div class="rule"><div class="num">02 · RETAIN</div><h2>Remove dominated alternatives</h2><p>Plans that are both more expensive and slower than another candidate are excluded from the operating conversation.</p></div>
+      <div class="rule"><div class="num">03 · RECOMMEND</div><h2 class="recommendation">Choose with SLA context</h2><p>The system selects the least-cost frontier plan that meets the SLA, or visibly flags residual risk when none do.</p></div>
+    </div>
+  </div>
+  <div class="footer"><strong>Decision principle:</strong> retain the trade-off set, then make the recommendation and its assumptions auditable.</div>
+</div></div>
+</body>
+</html>

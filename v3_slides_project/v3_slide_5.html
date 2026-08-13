@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #020617; font-family: 'Segoe UI', Roboto, sans-serif; color: #f8fafc; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+        padding-top: 80px;
+        padding-left: 100px;
+        padding-right: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        position: relative;
+      }
+      .neon-line {
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 2px;
+        background: #06b6d4;
+        box-shadow: 0 0 15px #06b6d4;
+      }
+      .header {
+        margin-bottom: 60px;
+        text-align: center;
+      }
+      h2 { font-size: 48px; font-weight: 900; color: #ffffff; margin-bottom: 12px; }
+      .header p { font-size: 20px; color: #94a3b8; letter-spacing: 1px; }
+      .roadmap-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 30px;
+      }
+      .roadmap-phase {
+        background: #1e293b;
+        border: 1px solid #334155;
+        padding: 30px;
+        position: relative;
+      }
+      .phase-tag {
+        font-size: 12px;
+        font-weight: 800;
+        color: #06b6d4;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+        display: block;
+      }
+      .roadmap-phase h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 15px;
+      }
+      .roadmap-phase p {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #cbd5e1;
+      }
+      .footer-vision {
+        margin-top: auto;
+        padding-top: 60px;
+        padding-bottom: 80px;
+        text-align: center;
+      }
+      .footer-vision h4 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #818cf8;
+        font-style: italic;
+      }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+      <div class="neon-line"></div>
+      <div class="header">
+        <h2>Strategic Roadmap: v3.5 and Beyond</h2>
+        <p>The Evolution of Proactive Operational Intelligence</p>
+      </div>
+
+      <div class="roadmap-grid">
+        <div class="roadmap-phase">
+          <span class="phase-tag">Version 3.5</span>
+          <h3>Cloud Collaboration</h3>
+          <p>Integration of cloud-based collaborative planning environments, enabling cross-facility benchmarking and global historical data warehousing for multi-site enterprises.</p>
+        </div>
+        <div class="roadmap-phase">
+          <span class="phase-tag">Version 3.8</span>
+          <h3>LLM Data Analyst</h3>
+          <p>Implementation of Large Language Model (LLM) interfaces, allowing stakeholders to query complex simulation datasets using natural language for instant insights.</p>
+        </div>
+        <div class="roadmap-phase">
+          <span class="phase-tag">Version 4.0</span>
+          <h3>Autonomous Operations</h3>
+          <p>Transition to a fully autonomous operational nervous system, capable of real-time automated staffing execution and predictive facility-wide resource leveling.</p>
+        </div>
+      </div>
+
+      <div class="footer-vision">
+        <h4>"QueueCraft AI: Empowering the Autonomous Enterprise."</h4>
+      </div>
+    </div>
+</body>
+</html>

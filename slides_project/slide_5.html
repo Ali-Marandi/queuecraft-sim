@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #020617; font-family: system-ui, -apple-system, sans-serif; color: #f8fafc; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: #0f172a;
+        padding-top: 60px;
+        padding-left: 80px;
+        padding-right: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+      }
+      .header-area {
+        margin-bottom: 40px;
+        border-left: 4px solid #6366f1;
+        padding-left: 24px;
+      }
+      .header-area h2 {
+        font-size: 38px;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 12px;
+      }
+      .header-area p {
+        font-size: 18px;
+        color: #94a3b8;
+      }
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+      }
+      .feature-zone {
+        background: #1e293b;
+        border: 1px solid #334155;
+        padding: 40px;
+      }
+      .feature-zone h3 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #818cf8;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .feature-zone p {
+        font-size: 17px;
+        line-height: 1.8;
+        color: #cbd5e1;
+        margin-bottom: 20px;
+      }
+      .tech-tag {
+        display: inline-block;
+        background: #0f172a;
+        border: 1px solid #6366f1;
+        color: #818cf8;
+        padding: 4px 12px;
+        font-size: 13px;
+        font-family: monospace;
+        margin-right: 8px;
+      }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+      <div class="header-area">
+        <h2>Enterprise Reporting & Automated Distribution</h2>
+        <p>Ensuring data portability and seamless deployment across global enterprise networks.</p>
+      </div>
+      <div class="main-grid">
+        <div class="feature-zone">
+          <h3><i class="fas fa-file-export"></i> Advanced Reporting Suite</h3>
+          <p>QueueCraft Enterprise features comprehensive CSV data export capabilities, allowing for deep statistical post-processing in Python, R, or Excel. This ensures that simulation data is never siloed and remains fully accessible for corporate auditing.</p>
+          <p>Integrated executive PDF reporting tools generate high-fidelity summaries of simulation KPIs, providing decision-makers with clear, actionable insights into operational capacity and resource constraints.</p>
+          <div>
+            <span class="tech-tag">CSV EXPORT</span>
+            <span class="tech-tag">PDF REPORTING</span>
+            <span class="tech-tag">DATA PORTABILITY</span>
+          </div>
+        </div>
+        <div class="feature-zone">
+          <h3><i class="fas fa-cogs"></i> Automated CI/CD Pipeline</h3>
+          <p>The integrated GitHub Actions CI/CD pipeline automatically cross-compiles standalone Windows executables (.exe) upon every release tag. This eliminates manual build errors and ensures that the latest enterprise features are always ready for deployment.</p>
+          <p>By providing zero-dependency distribution, QueueCraft Enterprise allows for immediate execution on client machines without requiring complex runtime environments, Python installations, or specialized browser plugins.</p>
+          <div>
+            <span class="tech-tag">GITHUB ACTIONS</span>
+            <span class="tech-tag">WIN32 COMPILE</span>
+            <span class="tech-tag">ZERO-DEPENDENCY</span>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

@@ -1,47 +1,72 @@
-name: Build and Release Windows App
+name: Build and Release QueueCraft Enterprise AI
 
 on:
   push:
-    branches: [ main, master ]
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (for example 3.2.0)"
+        required: true
+        default: "3.2.0"
+
+permissions:
+  contents: write
 
 jobs:
-  build-windows:
+  build-windows-installer:
     runs-on: windows-latest
+    env:
+      PYTHONUTF8: "1"
+      RELEASE_VERSION: ${{ inputs.version || github.ref_name }}
+      # Set these only as protected repository secrets when code signing is enabled.
+      SIGN_CERTIFICATE_PATH: ${{ secrets.SIGN_CERTIFICATE_PATH }}
+      SIGN_CERTIFICATE_PASSWORD: ${{ secrets.SIGN_CERTIFICATE_PASSWORD }}
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
-      - name: Install PyInstaller and Dependencies
+      - name: Set up Node.js for offline UI assets
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Inno Setup
+        shell: powershell
+        run: choco install innosetup --no-progress --yes
+
+      - name: Run AI and Monte Carlo regression tests
+        shell: powershell
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller pywebview
+          python -m pip install -r requirements.txt
+          python -m unittest -v test_ai_monte_carlo.py test_priority_queue.py test_scenario_manager.py test_data_import.py test_decision_analytics.py test_cloud_cluster_scaling.py test_multi_region_failover.py test_distributed_load_testing.py test_live_slo_monitoring.py test_distributed_stress_scenarios.py test_generative_queue_optimizer.py test_app_v4_bridge.py
 
-      - name: Build Windows Executable (.exe)
+      - name: Build offline Windows installer
+        shell: powershell
         run: |
-          pyinstaller --noconsole --onefile --name QueueCraftEnterprise app.py
+          $version = $env:RELEASE_VERSION.TrimStart('v')
+          .\build_windows.ps1 -Version $version
 
-      - name: Verify Executable
-        run: |
-          dir dist
-
-      - name: Upload Artifact
+      - name: Upload installer and application bundle
         uses: actions/upload-artifact@v4
         with:
-          name: QueueCraft-Enterprise-Windows
-          path: dist/QueueCraftEnterprise.exe
+          name: QueueCraft-Enterprise-AI-Windows-${{ env.RELEASE_VERSION }}
+          path: |
+            release\*.exe
+            dist\QueueCraftEnterpriseAI\**
+          if-no-files-found: error
 
-      - name: Create GitHub Release & Upload Asset
+      - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: dist/QueueCraftEnterprise.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          generate_release_notes: true
+          files: release\*.exe

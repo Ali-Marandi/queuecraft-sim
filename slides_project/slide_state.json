@@ -1,0 +1,78 @@
+{
+  "project_info": {
+    "title": "QueueCraft Enterprise: Redefining Operations Research & Simulation",
+    "created": 1786552384.453,
+    "last_updated": 1786552499.447,
+    "total_slides": 6
+  },
+  "slides": [
+    {
+      "id": "slide_1",
+      "state": "edited",
+      "pageNum": 1
+    },
+    {
+      "id": "slide_2",
+      "state": "edited",
+      "pageNum": 2
+    },
+    {
+      "id": "slide_3",
+      "state": "edited",
+      "pageNum": 3
+    },
+    {
+      "id": "slide_4",
+      "state": "edited",
+      "pageNum": 4
+    },
+    {
+      "id": "slide_5",
+      "state": "edited",
+      "pageNum": 5
+    },
+    {
+      "id": "slide_6",
+      "state": "edited",
+      "pageNum": 6
+    }
+  ],
+  "outline": [
+    {
+      "id": "slide_1",
+      "title": "QueueCraft Enterprise: Redefining Operations Research & Simulation",
+      "summary": "High-performance multi-server and multi-tier queue simulation studio bridging mathematical queueing theory with intuitive desktop software.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "slide_2",
+      "title": "The Enterprise Challenge: Operational Bottlenecks and Capacity Loss",
+      "summary": "Addressing legacy software limitations, unoptimized staffing, customer abandonment, and revenue leakage.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "slide_3",
+      "title": "Dual Simulation Engine: Stochastic Monte Carlo & Deterministic Modeling",
+      "summary": "Robust dual-engine architecture combining probabilistic Poisson/exponential modeling with reproducible custom array baselines.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "slide_4",
+      "title": "Advanced Capability: Multi-Tier Queuing Pipeline (Multi-Stage Simulation)",
+      "summary": "Modeling complex sequential operational workflows where stage output feeds direct arrival queues for subsequent tiers.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "slide_5",
+      "title": "Enterprise Reporting & Automated CI/CD Desktop Distribution",
+      "summary": "Comprehensive CSV and PDF reporting paired with automated GitHub Actions Windows executable cross-compilation.",
+      "image_plan": "Use a suitable image if needed"
+    },
+    {
+      "id": "slide_6",
+      "title": "Future Commercial Roadmap & Strategic Expansion",
+      "summary": "Real-time visual canvas animation, cloud database synchronization, and AI-driven staffing optimization.",
+      "image_plan": "Use a suitable image if needed"
+    }
+  ]
+}

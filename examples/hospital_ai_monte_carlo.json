@@ -1,0 +1,28 @@
+{
+  "mode": "simulate",
+  "historical_counts": [12, 15, 18, 24, 30, 36, 41, 38, 32, 28, 35, 44],
+  "horizon": 5,
+  "bucket_duration": 1.0,
+  "replications": 500,
+  "seed": 2026,
+  "tiers": [
+    {
+      "name": "Emergency Triage",
+      "servers": 3,
+      "mean_service_time": 0.45,
+      "service_cv": 0.75
+    },
+    {
+      "name": "Doctor Consultation",
+      "servers": 5,
+      "mean_service_time": 0.85,
+      "service_cv": 1.05
+    },
+    {
+      "name": "Pharmacy and Discharge",
+      "servers": 3,
+      "mean_service_time": 0.35,
+      "service_cv": 0.65
+    }
+  ]
+}

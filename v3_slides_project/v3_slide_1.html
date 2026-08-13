@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #020617; font-family: 'Segoe UI', Roboto, sans-serif; color: #f8fafc; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: radial-gradient(circle at 70% 30%, #1e1b4b 0%, #020617 70%);
+        padding: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .neon-border {
+        position: absolute;
+        top: 0; left: 0; right: 0; height: 4px;
+        background: linear-gradient(90deg, #6366f1, #06b6d4);
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+      }
+      .badge {
+        display: inline-block;
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid #6366f1;
+        color: #818cf8;
+        padding: 6px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 30px;
+        width: fit-content;
+      }
+      h1 {
+        font-size: 68px;
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 24px;
+        background: linear-gradient(to bottom right, #ffffff, #94a3b8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      h1 span {
+        display: block;
+        color: #06b6d4;
+        -webkit-text-fill-color: #06b6d4;
+        text-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
+      }
+      p {
+        font-size: 24px;
+        color: #94a3b8;
+        max-width: 800px;
+        line-height: 1.6;
+      }
+      .footer {
+        position: absolute;
+        bottom: 60px;
+        left: 100px;
+        font-size: 16px;
+        color: #475569;
+        font-weight: 600;
+        letter-spacing: 1px;
+      }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+      <div class="neon-border"></div>
+      <div class="badge">Next-Gen Intelligence</div>
+      <h1>QueueCraft Enterprise <span>AI Edition v3.0</span></h1>
+      <p>Transitioning from reactive simulation to proactive operational intelligence with integrated machine learning and real-time Digital Twin analytics.</p>
+      <div class="footer">POWERED BY MANUS AI & ALI MARANDI</div>
+    </div>
+</body>
+</html>

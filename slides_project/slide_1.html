@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #020617; font-family: system-ui, -apple-system, sans-serif; color: #f8fafc; }
+      .slide-container {
+        width: 1280px;
+        min-height: 720px;
+        background: radial-gradient(circle at top right, #1e1b4b, #0f172a 60%);
+        padding: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(99, 102, 241, 0.15);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        color: #818cf8;
+        padding: 8px 16px;
+        border-radius: 9999px;
+        font-size: 14px;
+        font-weight: 600;
+        width: fit-content;
+      }
+      .title-area h1 {
+        font-size: 56px;
+        font-weight: 800;
+        line-height: 1.1;
+        color: #ffffff;
+        margin-bottom: 24px;
+        max-width: 900px;
+      }
+      .title-area h1 span {
+        color: #818cf8;
+      }
+      .title-area p {
+        font-size: 20px;
+        color: #94a3b8;
+        line-height: 1.6;
+        max-width: 800px;
+      }
+      .footer-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #1e293b;
+        padding-top: 30px;
+      }
+      .author {
+        font-size: 16px;
+        color: #cbd5e1;
+        font-weight: 500;
+      }
+      .version {
+        background: #1e293b;
+        color: #94a3b8;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 14px;
+        border: 1px solid #334155;
+      }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+      <div class="badge">
+        <i class="fas fa-layer-group"></i> Commercial Enterprise Edition v2.2
+      </div>
+      <div class="title-area">
+        <h1>QueueCraft Enterprise: <span>Redefining Operations Research</span></h1>
+        <p>A high-performance multi-server and multi-tier queue simulation studio bridging complex mathematical queueing theory with intuitive desktop software architecture.</p>
+      </div>
+      <div class="footer-info">
+        <div class="author">Developed by Ali Marandi & Manus AI</div>
+        <div class="version">Desktop GUI & Multi-Tier Simulation Suite</div>
+      </div>
+    </div>
+</body>
+</html>

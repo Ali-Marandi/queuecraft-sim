@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+*{box-sizing:border-box;margin:0}.slide-container{width:1280px;min-height:720px;background:#0a1729;color:#eef6ff;font-family:Arial,Helvetica,sans-serif}.frame{min-height:720px;padding-top:62px;padding-left:82px;padding-right:82px}.kicker{font-size:14px;letter-spacing:2.4px;color:#74d4ff;text-transform:uppercase;font-weight:700}.title{font-size:42px;letter-spacing:-1px;margin-top:14px;max-width:850px}.lead{font-size:19px;line-height:1.45;color:#aebfd2;margin-top:16px;max-width:820px}.flow{height:360px;margin-top:50px;display:grid;grid-template-columns:1fr 1fr 1fr;position:relative}.flow:before{content:"";position:absolute;height:2px;left:65px;right:65px;top:146px;background:linear-gradient(90deg,#36516c,#5bd0ff,#f3b640)}.stage{position:relative;padding-right:42px}.stage:not(:last-child){border-right:1px solid #294057}.stage:not(:first-child){padding-left:42px}.index{font-size:58px;color:#203a55;font-weight:700}.stage h2{font-size:26px;margin-top:17px}.stage p{font-size:17px;line-height:1.48;color:#b4c4d5;margin-top:18px;max-width:270px}.dot{width:18px;height:18px;border-radius:50%;background:#5bd0ff;position:absolute;top:138px;left:0;box-shadow:0 0 18px rgba(91,208,255,.6)}.stage:nth-child(2) .dot{background:#70c8ef}.stage:nth-child(3) .dot{background:#f3b640;box-shadow:0 0 18px rgba(243,182,64,.6)}.statement{border-top:1px solid #294057;padding-top:22px;font-size:23px;line-height:1.35;color:#e5f1fb}.statement strong{color:#5bd0ff}.footer{font-size:12px;letter-spacing:1px;color:#58718b;margin-top:30px}
+</style>
+</head>
+<body><div class="slide-container"><div class="frame">
+<div class="kicker">The operating-decision gap</div>
+<div class="title">Trust begins before the simulation runs.</div>
+<p class="lead">A staffing recommendation is only defensible when source data, risk assumptions, and capacity trade-offs remain connected and reviewable.</p>
+<div class="flow">
+  <div class="stage"><div class="index">01</div><div class="dot"></div><h2>Data</h2><p>Arrival history arrives from operational files with unknown completeness and consistency.</p></div>
+  <div class="stage"><div class="index">02</div><div class="dot"></div><h2>Risk</h2><p>Demand and service variability can turn an apparently adequate plan into a service failure.</p></div>
+  <div class="stage"><div class="index">03</div><div class="dot"></div><h2>Decision</h2><p>Capacity choices must show cost, expected delay, tail risk, and SLA exposure together.</p></div>
+</div>
+<div class="statement"><strong>QueueCraft v3.1</strong> creates one traceable path from validated input to a cost-aware operating decision.</div>
+<div class="footer">DATA QUALITY → MONTE CARLO RISK → CAPACITY DECISION</div>
+</div></div></body></html>
