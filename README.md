@@ -24,6 +24,7 @@ QueueCraft Enterprise AI is a desktop simulation and capacity-planning suite for
 | Cost-aware Auto-Scaling | Capacity recommendation under configurable wait-time SLA and per-server cost assumptions |
 | Advanced queue policy model | Non-preemptive priority classes, finite waiting capacity, rejection, abandonment, and service-level indicators |
 | Auditable scenario management | Validated local scenario documents, cryptographic fingerprints, explicit SLA assessments, and repeatable seeds |
+| Commercial workspace and reporting | Browse, run, delete, and export fingerprint-verified saved scenarios as portable audit-ready JSON reports |
 | Localization foundation | English and Persian interface vocabulary with persistent language selection and RTL support |
 | Offline-ready desktop bundle | Locally bundled chart/CSS assets, PyInstaller runtime collection, Inno Setup installer definition, and release workflow |
 
@@ -73,7 +74,7 @@ The installer is created under `release\`.
 
 ## Commercial Development Roadmap
 
-The immediate release candidate focus is data import and validation, real-world queue policies, audit trails, and forecast drift monitoring. The medium-term roadmap covers network routing, Pareto analysis, role-based collaboration, natural-language analysis with explicit access controls, and integrations with operational systems. Full prioritization appears in [`COMMERCIAL_ROADMAP_V3.md`](COMMERCIAL_ROADMAP_V3.md).
+The immediate release candidate focus is data import and validation, real-world queue policies, audit trails, and forecast drift monitoring. The medium-term roadmap covers network routing, Pareto analysis, role-based collaboration, natural-language analysis with explicit access controls, and integrations with operational systems. Full prioritization appears in [`COMMERCIAL_ROADMAP_V3.md`](COMMERCIAL_ROADMAP_V3.md). The current commercial product specification and enterprise acceptance criteria are documented in [`COMMERCIAL_PRODUCT_SPEC_V4.md`](COMMERCIAL_PRODUCT_SPEC_V4.md).
 
 ## License
 

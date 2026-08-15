@@ -111,9 +111,24 @@
             <span data-i18n="liveSloDashboard">Open Live SLO Dashboard</span>
           </button>
           <button onclick="exportCSV()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-xs font-medium rounded-lg border border-slate-700 transition flex items-center justify-center gap-2">
-            📄 Export Results to CSV
+            Export Results to CSV
           </button>
         </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-800">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Workspace</h2>
+          <button onclick="refreshScenarioWorkspace()" class="text-[10px] text-indigo-400 hover:text-indigo-300">Refresh</button>
+        </div>
+        <select id="scenarioWorkspace" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-2 text-xs text-slate-200">
+          <option value="">No saved scenarios</option>
+        </select>
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <button onclick="runWorkspaceScenario()" class="py-2 bg-indigo-950/60 hover:bg-indigo-900/70 text-[11px] rounded-lg border border-indigo-800">Run selected</button>
+          <button onclick="exportWorkspaceReport()" class="py-2 bg-slate-800 hover:bg-slate-700 text-[11px] rounded-lg border border-slate-700">Export report</button>
+        </div>
+        <button onclick="deleteWorkspaceScenario()" class="w-full mt-2 py-2 bg-rose-950/40 hover:bg-rose-900/50 text-[11px] rounded-lg border border-rose-900/70 text-rose-300">Delete selected scenario</button>
       </div>
     </aside>
 
@@ -242,6 +257,49 @@
       }
     }
 
+    window.refreshScenarioWorkspace = async function() {
+      const select = document.getElementById('scenarioWorkspace');
+      if (!(window.pywebview && window.pywebview.api)) return;
+      try {
+        const scenarios = JSON.parse(await window.pywebview.api.list_scenarios());
+        select.innerHTML = scenarios.length ? scenarios.map(item => `<option value="${item.id}">${item.name} · ${item.updated_at}</option>`).join('') : '<option value="">No saved scenarios</option>';
+      } catch (error) {
+        select.innerHTML = `<option value="">Workspace unavailable</option>`;
+      }
+    };
+
+    window.runWorkspaceScenario = async function() {
+      const scenarioId = document.getElementById('scenarioWorkspace').value;
+      if (!scenarioId || !(window.pywebview && window.pywebview.api)) return;
+      const text = document.getElementById('aiForecastText');
+      document.getElementById('aiForecastBox').classList.remove('hidden');
+      text.innerText = 'Running selected, fingerprint-verified scenario...';
+      try {
+        const result = JSON.parse(await window.pywebview.api.run_saved_scenario(scenarioId));
+        if (result.error) throw new Error(result.error);
+        text.innerHTML = `<b>${result.scenario.name}</b> completed. SLA: <b>${result.sla.status}</b>; mean wait: <b>${result.sla.observed_mean_wait}</b>. Fingerprint: <b>${result.scenario.fingerprint.slice(0, 16)}…</b>`;
+      } catch (error) { text.innerText = `Scenario run failed: ${error.message}`; }
+    };
+
+    window.exportWorkspaceReport = async function() {
+      const scenarioId = document.getElementById('scenarioWorkspace').value;
+      if (!scenarioId || !(window.pywebview && window.pywebview.api)) return;
+      try {
+        const report = JSON.parse(await window.pywebview.api.export_scenario_report(scenarioId));
+        if (report.error) throw new Error(report.error);
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `queuecraft-report-${scenarioId}.json`; link.click(); URL.revokeObjectURL(link.href);
+      } catch (error) { alert(`Report export failed: ${error.message}`); }
+    };
+
+    window.deleteWorkspaceScenario = async function() {
+      const scenarioId = document.getElementById('scenarioWorkspace').value;
+      if (!scenarioId || !confirm('Delete the selected local scenario?')) return;
+      const result = JSON.parse(await window.pywebview.api.delete_scenario(scenarioId));
+      if (result.error) { alert(result.error); return; }
+      await refreshScenarioWorkspace();
+    };
+
     window.saveCurrentScenario = async function() {
       if (!(window.pywebview && window.pywebview.api)) {
         alert('Scenario persistence is available in the packaged QueueCraft desktop application.');
@@ -286,6 +344,7 @@
       } catch (error) {
         text.innerText = `Scenario could not be saved: ${error.message}`;
       }
+      await refreshScenarioWorkspace();
     }
 
     window.setArchitecture = function(arch) {
@@ -518,7 +577,9 @@
       if (!dashboard.error) renderLiveSloDashboard(dashboard);
     }
 
-    window.addEventListener('beforeunload', () => { if (liveSloAutoRefresh) window.clearInterval(liveSloAutoRefresh); });
+    window.addEventListener('pywebviewready', () => {
+      refreshScenarioWorkspace();
+ if (liveSloAutoRefresh) window.clearInterval(liveSloAutoRefresh); });
 
     window.runDistributedLoadTest = async function() {
       const box = document.getElementById('aiForecastBox');

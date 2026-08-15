@@ -320,6 +320,44 @@ class API:
         except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
             return json.dumps({"error": str(error)})
 
+    def load_scenario(self, scenario_id: str) -> str:
+        """Return one integrity-verified scenario document for workspace editing."""
+        try:
+            return json.dumps(self.repository.load(scenario_id))
+        except (FileNotFoundError, TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
+    def delete_scenario(self, scenario_id: str) -> str:
+        """Delete only a locally stored scenario selected by the operator."""
+        try:
+            self.repository.delete(scenario_id)
+            return json.dumps({"deleted": True, "id": scenario_id})
+        except (FileNotFoundError, TypeError, ValueError) as error:
+            return json.dumps({"error": str(error)})
+
+    def export_scenario_report(self, scenario_id: str) -> str:
+        """Run a saved scenario and return a portable, audit-ready report payload."""
+        try:
+            document = self.repository.load(scenario_id)
+            scenario = document["scenario"]
+            simulation = run_ai_monte_carlo(
+                scenario["historical_counts"],
+                scenario["tiers"],
+                horizon=scenario["simulation"]["horizon"],
+                replications=scenario["simulation"]["replications"],
+                seed=scenario["simulation"]["seed"],
+            )
+            return json.dumps({
+                "product": "QueueCraft Enterprise AI",
+                "report_version": "1.0",
+                "generated_at": document["updated_at"],
+                "scenario": document,
+                "simulation": simulation,
+                "sla": evaluate_sla(simulation, scenario["sla"]["max_end_to_end_mean_wait"]),
+            })
+        except (FileNotFoundError, TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
     def run_saved_scenario(self, scenario_id: str) -> str:
         """Run an auditable scenario and explicitly evaluate its configured SLA."""
         try:
