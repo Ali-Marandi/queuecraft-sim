@@ -19,6 +19,7 @@ from distributed_load_testing import DistributedLoadPolicy, LoadGenerator, Targe
 from live_slo_monitoring import LiveSLOMonitor
 from generative_queue_optimizer import create_generative_proposal
 from scenario_manager import ScenarioRepository, evaluate_sla
+from streaming_drift import DriftThresholds, StreamingDriftMonitor
 
 PORT = 8765
 
@@ -80,6 +81,7 @@ class API:
         self.repository = ScenarioRepository()
         self.last_import: dict[str, Any] | None = None
         self.live_slo_monitor = LiveSLOMonitor(SLODefinition(**self.DEFAULT_SLO), max_history_points=120)
+        self.streaming_drift_monitor = StreamingDriftMonitor()
 
     @staticmethod
     def _decode_payload(payload_json: str) -> dict[str, Any]:
@@ -87,6 +89,27 @@ class API:
         if not isinstance(payload, dict):
             raise ValueError("Request payload must be a JSON object")
         return payload
+
+    def monitor_streaming_drift(self, payload_json: str) -> str:
+        """Evaluate explicit local observations and report whether challenger evaluation is requested."""
+        try:
+            payload = self._decode_payload(payload_json)
+            if "reference" in payload:
+                thresholds = DriftThresholds(**{**self.streaming_drift_monitor.thresholds.__dict__, **payload.get("thresholds", {})})
+                self.streaming_drift_monitor.thresholds = thresholds
+                self.streaming_drift_monitor.seed_reference(payload["reference"])
+            if "current" in payload:
+                return json.dumps(self.streaming_drift_monitor.ingest(payload["current"]))
+            return json.dumps(self.streaming_drift_monitor.evaluate())
+        except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
+    def reset_streaming_drift(self) -> str:
+        """Clear current drift window while retaining the reference distribution."""
+        try:
+            return json.dumps(self.streaming_drift_monitor.reset_current())
+        except (TypeError, ValueError) as error:
+            return json.dumps({"error": str(error)})
 
     def select_arrival_file(self) -> str:
         """Open a native file picker; the user explicitly chooses local source data."""
@@ -407,7 +430,7 @@ def main() -> None:
     server_thread.start()
 
     window = webview.create_window(
-        "QueueCraft Enterprise AI v3.2 — Global Resilience",
+        "QueueCraft Enterprise AI v3.9 — Scenario Intelligence",
         f"http://127.0.0.1:{PORT}/index.html",
         js_api=API(),
         width=1366,
