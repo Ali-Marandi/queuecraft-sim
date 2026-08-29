@@ -1,0 +1,51 @@
+{
+  "enable_llm": false,
+  "market": {
+    "macro": {
+      "inflation": 3.2,
+      "output_gap_pct": -0.8,
+      "policy_rate": 4.5
+    },
+    "asset_returns": [0.010,-0.012,0.008,-0.006,0.004,-0.014,0.011,0.009,-0.005,0.007,-0.009,0.013,-0.004,0.006,-0.011,0.005,0.008,-0.007,0.012,-0.010,0.004,-0.006,0.009,-0.003,0.007,-0.008,0.010,-0.005,0.006,-0.009,0.011,-0.007,0.005,-0.006,0.008,-0.010,0.009,-0.004,0.007,-0.008],
+    "factors": {
+      "market_excess": [0.008,-0.010,0.006,-0.005,0.003,-0.012,0.009,0.007,-0.004,0.006,-0.008,0.011,-0.003,0.005,-0.010,0.004,0.007,-0.006,0.010,-0.009,0.003,-0.005,0.008,-0.002,0.006,-0.007,0.009,-0.004,0.005,-0.008,0.010,-0.006,0.004,-0.005,0.007,-0.009,0.008,-0.003,0.006,-0.007]
+    },
+    "base": {"market": 0.0},
+    "shocks": {"rates": 1.0, "liquidity": 0.8, "political": 0.4, "climate": 0.3},
+    "sensitivities": {"rates": 0.8, "liquidity": 1.1, "political": 0.6, "climate": 0.5},
+    "behavior": {"winner_sell_ratio": 0.42, "loser_sell_ratio": 0.24, "top5_weight": 0.58, "turnover": 1.6}
+  },
+  "operational": {
+    "historical_counts": [8,11,13,19,22,24,20,18,21,27,31,34],
+    "tiers": [
+      {"name": "Triage", "servers": 2, "mean_service_time": 0.6, "service_cv": 0.8},
+      {"name": "Consultation", "servers": 3, "mean_service_time": 0.9, "service_cv": 1.0}
+    ],
+    "sla_mean_wait": 5.0,
+    "cost_per_server": 1.0,
+    "server_range": [1,6],
+    "replications": 60,
+    "seed": 42,
+    "arrival_multipliers": [0.8,1.0,1.2],
+    "service_time_multipliers": [0.8,1.0,1.2]
+  },
+  "graph": {
+    "nodes": [
+      {"id": "rates", "label": "Policy rates", "shock": 1.0},
+      {"id": "liquidity", "label": "Liquidity", "shock": 0.0},
+      {"id": "market_vol", "label": "Market volatility", "shock": 0.0},
+      {"id": "demand", "label": "Operational demand", "shock": 0.0},
+      {"id": "queue_sla", "label": "Queue SLA risk", "shock": 0.0}
+    ],
+    "edges": [
+      {"from": "rates", "to": "liquidity", "weight": 0.45},
+      {"from": "liquidity", "to": "market_vol", "weight": 0.70},
+      {"from": "market_vol", "to": "demand", "weight": 0.30},
+      {"from": "demand", "to": "queue_sla", "weight": 0.80}
+    ]
+  },
+  "counterfactual": {
+    "demand_multiplier": 1.15,
+    "service_time_multiplier": 1.05
+  }
+}
