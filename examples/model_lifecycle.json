@@ -1,0 +1,32 @@
+{
+  "primary_metric": "rmse",
+  "tolerance": 0.02,
+  "snapshot_model_id": "challenger-forecast-v2",
+  "models": [
+    {
+      "model_id": "champion-forecast-v1",
+      "family": "arrival_forecast",
+      "version": "1.0.0",
+      "metrics": {"rmse": 5.2, "mae": 4.1, "smape": 0.18},
+      "limitations": ["illustrative benchmark", "short horizon"]
+    },
+    {
+      "model_id": "challenger-forecast-v2",
+      "family": "arrival_forecast",
+      "version": "2.0.0",
+      "metrics": {"rmse": 4.6, "mae": 3.7, "smape": 0.15},
+      "limitations": ["illustrative benchmark", "requires recalibration after major regime change"]
+    },
+    {
+      "model_id": "challenger-forecast-v3",
+      "family": "arrival_forecast",
+      "version": "3.0.0",
+      "metrics": {"rmse": 4.9, "mae": 3.9, "smape": 0.16},
+      "limitations": ["illustrative benchmark"]
+    }
+  ],
+  "actual": [10, 20, 30, 40, 50, 60, 62, 58, 64, 70],
+  "predicted": [11, 19, 31, 39, 48, 61, 60, 60, 63, 69],
+  "reference_load": [100, 102, 104, 106, 108, 110],
+  "current_load": [100, 105, 112, 125, 139, 151]
+}
