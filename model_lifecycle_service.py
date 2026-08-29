@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from challenger_orchestrator import orchestrate_challenger_evaluation
 from model_lifecycle import ModelCandidate, compare_challengers, model_lifecycle_snapshot
 
 
@@ -34,6 +35,13 @@ def evaluate_model_lifecycle(payload: dict[str, Any]) -> dict[str, Any]:
             predicted=payload["predicted"],
             reference_load=payload.get("reference_load"),
             current_load=payload.get("current_load"),
+        )
+    if "drift" in payload:
+        result["challenger"] = orchestrate_challenger_evaluation(
+            payload["drift"],
+            payload.get("registry_candidates", []),
+            current_model_id=payload.get("current_model_id"),
+            family=payload.get("family"),
         )
     return result
 
