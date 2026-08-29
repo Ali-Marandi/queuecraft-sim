@@ -1,11 +1,11 @@
 {
   "name": "queuecraft-enterprise-ai",
-  "version": "3.8.0",
+  "version": "3.9.0",
   "type": "module",
-  "description": "Enterprise queue simulation, resilience modeling, local SLO monitoring, market intelligence, governance, scenario decision, model lifecycle, and time-series validation suite.",
+  "description": "Enterprise queue simulation, resilience modeling, local SLO monitoring, market intelligence, governance, scenario decision, model lifecycle, time-series validation, and streaming drift monitoring suite.",
   "scripts": {
     "test": "node --test",
-    "test:ai": "python -m unittest -v test_ai_monte_carlo.py test_priority_queue.py test_scenario_manager.py test_data_import.py test_decision_analytics.py test_cloud_cluster_scaling.py test_multi_region_failover.py test_distributed_load_testing.py test_live_slo_monitoring.py test_distributed_stress_scenarios.py test_generative_queue_optimizer.py test_app_v4_bridge.py test_market_intelligence.py test_scenario_intelligence.py test_experiment_engine.py test_governance_layer.py test_model_lifecycle.py test_model_lifecycle_service.py test_model_registry.py test_promotion_gate.py test_walk_forward_backtest.py",
+    "test:ai": "python -m unittest -v test_ai_monte_carlo.py test_priority_queue.py test_scenario_manager.py test_data_import.py test_decision_analytics.py test_cloud_cluster_scaling.py test_multi_region_failover.py test_distributed_load_testing.py test_live_slo_monitoring.py test_distributed_stress_scenarios.py test_generative_queue_optimizer.py test_app_v4_bridge.py test_market_intelligence.py test_scenario_intelligence.py test_experiment_engine.py test_governance_layer.py test_model_lifecycle.py test_model_lifecycle_service.py test_model_registry.py test_promotion_gate.py test_walk_forward_backtest.py test_streaming_drift.py",
     "test:stress": "python stress_test_scenarios.py",
     "test:market": "python -m unittest -v test_market_intelligence.py",
     "test:scenario-intelligence": "python -m unittest -v test_scenario_intelligence.py",
@@ -13,6 +13,7 @@
     "test:governance": "python -m unittest -v test_governance_layer.py",
     "test:model-lifecycle": "python -m unittest -v test_model_lifecycle.py test_model_lifecycle_service.py test_model_registry.py test_promotion_gate.py",
     "test:validation": "python -m unittest -v test_walk_forward_backtest.py",
+    "test:drift": "python -m unittest -v test_streaming_drift.py",
     "build:assets": "tailwindcss -i ./assets/tailwind.input.css -o ./assets/vendor/tailwind.css --minify && node ./scripts/copy-vendor-assets.mjs",
     "build:windows": "powershell -ExecutionPolicy Bypass -File .\\build_windows.ps1"
   },
