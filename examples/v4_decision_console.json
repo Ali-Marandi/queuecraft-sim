@@ -1,0 +1,15 @@
+{
+  "historical_counts": [8, 11, 13, 19, 22, 24, 20, 18, 21, 27, 31, 34],
+  "tiers": [
+    {"name": "Triage", "servers": 2, "mean_service_time": 0.6, "service_cv": 0.8},
+    {"name": "Consultation", "servers": 3, "mean_service_time": 0.9, "service_cv": 1.0}
+  ],
+  "sla_mean_wait": 5.0,
+  "cost_per_server": 1.0,
+  "server_range": [1, 6],
+  "replications": 120,
+  "seed": 42,
+  "arrival_multipliers": [0.8, 1.0, 1.2],
+  "service_time_multipliers": [0.8, 1.0, 1.2],
+  "constraints": {"require_sla_compliance": true}
+}
