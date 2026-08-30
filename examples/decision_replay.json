@@ -1,0 +1,17 @@
+{
+  "scenario_id": "QC-REPLAY-DEMO",
+  "seed": 42,
+  "model_versions": [
+    {"model_id": "arrival-forecast", "version": "1.0.0"},
+    {"model_id": "queue-sim", "version": "4.0.0"}
+  ],
+  "assumptions": {
+    "service_cv": 0.8,
+    "sla_mean_wait": 5.0
+  },
+  "decision": {
+    "recommended_capacity": 11,
+    "sla_pass": true,
+    "risk_level": "medium"
+  }
+}
