@@ -1,20 +1,20 @@
 # Changelog
 
-## v3.16.0 — Policy Governance and Human Approval
+## v3.18.0 — Enterprise Data Plane
 
 ### Added
 
-- Added deterministic declarative Policy Engine with `allow`, `review`, and `block` outcomes.
-- Added rule operators `gte`, `gt`, `lte`, `lt`, `eq`, `neq`, and `in`.
-- Added explicit rule precedence: block > review > allow.
-- Added Human Approval Workflow with required reviewer role, identity, notes, and terminal decisions.
-- Added JSON service contract for policy evaluation and approval transitions.
-- Added dedicated policy and approval verification commands and tests.
-- Refreshed README and governance documentation for the new control layer.
+- Added versioned dataset schema primitives and compatibility metadata.
+- Added declarative validation profiles for required and non-negative fields.
+- Added deterministic dataset manifests with content fingerprints and quality metadata.
+- Added reproducible cache-key generation from dataset, scenario, model, and runtime identity.
+- Added reproducible run bundles carrying dataset, scenario, model, seed, and outputs.
+- Added `data_plane_cli.py` for local validation and run-bundle generation.
+- Added `npm run test:data-plane` and included the new tests in the enterprise/AI verification suites.
 
 ### Governance
 
-- Policy evaluation is side-effect free and never performs operational changes.
-- Approval decisions require an explicit human reviewer role and identity.
-- Approved/rejected requests record that no deployment was performed.
-- Existing evidence, lineage, replay, drift, and promotion controls remain active.
+- Dataset identity is explicit and fingerprinted before it participates in a run bundle.
+- Run bundles preserve enough metadata to support replay, evidence, and lineage integration.
+- Validation remains local and side-effect free.
+- No new external telemetry or operational mutation was introduced.
