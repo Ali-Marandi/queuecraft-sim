@@ -19,8 +19,6 @@ from distributed_load_testing import DistributedLoadPolicy, LoadGenerator, Targe
 from live_slo_monitoring import LiveSLOMonitor
 from generative_queue_optimizer import create_generative_proposal
 from scenario_manager import ScenarioRepository, evaluate_sla
-from streaming_drift import DriftThresholds, StreamingDriftMonitor
-from decision_ledger import DecisionLedger
 
 PORT = 8765
 
@@ -82,8 +80,6 @@ class API:
         self.repository = ScenarioRepository()
         self.last_import: dict[str, Any] | None = None
         self.live_slo_monitor = LiveSLOMonitor(SLODefinition(**self.DEFAULT_SLO), max_history_points=120)
-        self.streaming_drift_monitor = StreamingDriftMonitor()
-        self.decision_ledger = DecisionLedger()
 
     @staticmethod
     def _decode_payload(payload_json: str) -> dict[str, Any]:
@@ -91,61 +87,6 @@ class API:
         if not isinstance(payload, dict):
             raise ValueError("Request payload must be a JSON object")
         return payload
-
-    def record_decision_event(self, payload_json: str) -> str:
-        """Append one explicit local audit event to the decision ledger."""
-        try:
-            payload = self._decode_payload(payload_json)
-            event_type = str(payload.get("event_type", "decision_observation"))
-            event_payload = payload.get("payload", payload)
-            if not isinstance(event_payload, dict):
-                raise ValueError("event payload must be an object")
-            return json.dumps(self.decision_ledger.append(event_type, event_payload), ensure_ascii=False)
-        except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
-            return json.dumps({"error": str(error)})
-
-    def get_decision_ledger(self, limit: int = 200) -> str:
-        """Return recent audit events plus the ledger integrity status."""
-        try:
-            return json.dumps({"events": self.decision_ledger.read(int(limit)), "integrity": self.decision_ledger.verify()})
-        except (TypeError, ValueError) as error:
-            return json.dumps({"error": str(error)})
-
-    def verify_decision_ledger(self) -> str:
-        """Verify the append-only hash chain without mutating it."""
-        try:
-            return json.dumps(self.decision_ledger.verify())
-        except (TypeError, ValueError) as error:
-            return json.dumps({"error": str(error)})
-
-    def monitor_streaming_drift(self, payload_json: str) -> str:
-        """Evaluate explicit local observations and report whether challenger evaluation is requested."""
-        try:
-            payload = self._decode_payload(payload_json)
-            if "reference" in payload:
-                thresholds = DriftThresholds(**{**self.streaming_drift_monitor.thresholds.__dict__, **payload.get("thresholds", {})})
-                self.streaming_drift_monitor.thresholds = thresholds
-                self.streaming_drift_monitor.seed_reference(payload["reference"])
-            if "current" in payload:
-                result = self.streaming_drift_monitor.ingest(payload["current"])
-            else:
-                result = self.streaming_drift_monitor.evaluate()
-            if result.get("evaluation_requested"):
-                self.decision_ledger.append("challenger_evaluation_requested", result)
-            else:
-                self.decision_ledger.append("drift_evaluation", result)
-            return json.dumps(result)
-        except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
-            return json.dumps({"error": str(error)})
-
-    def reset_streaming_drift(self) -> str:
-        """Clear current drift window while retaining the reference distribution."""
-        try:
-            result = self.streaming_drift_monitor.reset_current()
-            self.decision_ledger.append("drift_window_reset", result)
-            return json.dumps(result)
-        except (TypeError, ValueError) as error:
-            return json.dumps({"error": str(error)})
 
     def select_arrival_file(self) -> str:
         """Open a native file picker; the user explicitly chooses local source data."""
@@ -193,7 +134,6 @@ class API:
                 replications=int(payload.get("replications", 500)),
                 seed=payload.get("seed", 42),
             )
-            self.decision_ledger.append("simulation_completed", {"summary": result.get("summary", {}), "seed": payload.get("seed", 42)})
             return json.dumps(result)
         except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
             return json.dumps({"error": str(error)})
@@ -211,7 +151,155 @@ class API:
                 replications=int(payload.get("replications", 200)),
                 seed=payload.get("seed", 42),
             )
-            self.decision_ledger.append("staffing_optimized", {"result": result.get("recommendation", result)})
+            return json.dumps(result)
+        except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
+    def ingest_live_slo_observation(self, payload_json: str) -> str:
+        """Ingest an explicitly supplied local observation; no telemetry is sent externally."""
+        try:
+            return json.dumps(self.live_slo_monitor.ingest(self._decode_payload(payload_json)))
+        except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
+    def get_live_slo_dashboard(self, history_limit: int = 60) -> str:
+        """Read the bounded in-memory SLO dashboard snapshot for the local desktop session."""
+        try:
+            return json.dumps(self.live_slo_monitor.dashboard_snapshot(history_limit=int(history_limit)))
+        except (TypeError, ValueError) as error:
+            return json.dumps({"error": str(error)})
+
+    def advance_live_slo_demo(self) -> str:
+        """Add one fixed illustrative local observation to the dashboard."""
+        try:
+            return json.dumps(self.live_slo_monitor.advance_demo())
+        except (TypeError, ValueError) as error:
+            return json.dumps({"error": str(error)})
+
+    def reset_live_slo_dashboard(self) -> str:
+        """Clear only the in-memory monitoring data for this desktop session."""
+        try:
+            return json.dumps(self.live_slo_monitor.reset())
+        except (TypeError, ValueError) as error:
+            return json.dumps({"error": str(error)})
+
+    def run_distributed_load_test(self, payload_json: str) -> str:
+        """Run a safe local capacity model; this method sends no network traffic."""
+        try:
+            payload = self._decode_payload(payload_json)
+            requested = payload.get("global_load_buckets", (self.last_import or {}).get("historical_counts", self.DEFAULT_HISTORY))
+            result = simulate_distributed_load(
+                requested,
+                [LoadGenerator(**generator) for generator in payload.get("load_generators", self.DEFAULT_GLOBAL_LOAD_GENERATORS)],
+                [TargetRegion(**target) for target in payload.get("target_regions", self.DEFAULT_GLOBAL_TARGETS)],
+                payload.get("network_latency_ms", self.DEFAULT_GLOBAL_NETWORK_LATENCY),
+                DistributedLoadPolicy(**{**self.DEFAULT_GLOBAL_LOAD_POLICY, **payload.get("policy", {})}),
+                outages_by_bucket=payload.get("outages_by_bucket", {}),
+            )
+            return json.dumps(result)
+        except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
+    def run_multi_region_failover(self, payload_json: str) -> str:
+        """Run a local multi-region resilience simulation without cloud mutations."""
+        try:
+            payload = self._decode_payload(payload_json)
+            arrivals = payload.get("arrival_buckets", (self.last_import or {}).get("historical_counts", self.DEFAULT_HISTORY))
+            regions = [RegionConfig(**region) for region in payload.get("regions", self.DEFAULT_REGIONS)]
+            policy = FailoverPolicy(**{**self.DEFAULT_FAILOVER_POLICY, **payload.get("failover_policy", {})})
+            slo = SLODefinition(**{**self.DEFAULT_SLO, **payload.get("slo_definition", {})})
+            result = simulate_multi_region_failover(
+                arrivals,
+                regions,
+                policy,
+                slo,
+                outages_by_bucket=payload.get("outages_by_bucket", {}),
+            )
+            return json.dumps(result)
+        except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
+    def run_cluster_scaling(self, payload_json: str) -> str:
+        """Simulate local cluster scaling; this method never calls a cloud provider."""
+        try:
+            payload = self._decode_payload(payload_json)
+            history = payload.get("historical_counts", (self.last_import or {}).get("historical_counts", self.DEFAULT_HISTORY))
+            policy = ClusterPolicy(**{**self.DEFAULT_CLUSTER_POLICY, **payload.get("cluster_policy", {})})
+            forecast = forecast_cluster_scaling(history, policy, horizon=int(payload.get("horizon", 8)))
+            arrivals = payload.get(
+                "arrival_buckets",
+                [int(round(item["forecast_arrivals"])) for item in forecast["pre_scaling_plan"]],
+            )
+            simulation = simulate_cluster_scaling(arrivals, policy, initial_nodes=payload.get("initial_nodes"))
+            return json.dumps({"forecast": forecast, "simulation": simulation})
+        except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
+    def run_pareto_analysis(self, payload_json: str) -> str:
+        """Evaluate non-dominated capacity plans on cost and queue-wait objectives."""
+        try:
+            payload = self._decode_payload(payload_json)
+            result = capacity_pareto_analysis(
+                payload.get("historical_counts", (self.last_import or {}).get("historical_counts", self.DEFAULT_HISTORY)),
+                payload.get("tiers", self.DEFAULT_TIERS),
+                server_range=tuple(payload.get("server_range", [1, 6])),
+                cost_per_server=float(payload.get("cost_per_server", 1.0)),
+                sla_mean_wait=payload.get("sla_mean_wait", 5.0),
+                replications=int(payload.get("replications", 100)),
+                seed=payload.get("seed", 42),
+            )
+            return json.dumps(result)
+        except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
+    def create_v4_queue_proposal(self, payload_json: str) -> str:
+        """Create an auditable capacity draft; LLM use remains opt-in and never applies a change."""
+        try:
+            payload = self._decode_payload(payload_json)
+            history = payload.get("historical_counts", (self.last_import or {}).get("historical_counts", self.DEFAULT_HISTORY))
+            tiers = payload.get("tiers", self.DEFAULT_TIERS)
+            replications = int(payload.get("replications", 100))
+            seed = payload.get("seed", 42)
+            pareto = capacity_pareto_analysis(
+                history,
+                tiers,
+                server_range=tuple(payload.get("server_range", [1, 6])),
+                cost_per_server=float(payload.get("cost_per_server", 1.0)),
+                sla_mean_wait=payload.get("sla_mean_wait", 5.0),
+                replications=replications,
+                seed=seed,
+            )
+            sensitivity = sensitivity_analysis(
+                history,
+                tiers,
+                arrival_multipliers=payload.get("arrival_multipliers", [0.8, 1.0, 1.2]),
+                service_time_multipliers=payload.get("service_time_multipliers", [0.8, 1.0, 1.2]),
+                replications=replications,
+                seed=seed,
+            )
+            proposal = create_generative_proposal(
+                pareto,
+                sensitivity,
+                constraints=payload.get("constraints", {"require_sla_compliance": True}),
+                enable_llm=bool(payload.get("enable_llm", False)),
+                model=str(payload.get("model", "gpt-5-mini")),
+            )
+            return json.dumps({"proposal": proposal, "pareto_summary": {"recommendation": pareto["recommendation"], "candidate_count": pareto["candidates_evaluated"]}})
+        except (TypeError, ValueError, KeyError, RuntimeError, json.JSONDecodeError) as error:
+            return json.dumps({"error": str(error)})
+
+    def run_sensitivity_analysis(self, payload_json: str) -> str:
+        """Evaluate queue exposure to demand and service-duration uncertainty."""
+        try:
+            payload = self._decode_payload(payload_json)
+            result = sensitivity_analysis(
+                payload.get("historical_counts", (self.last_import or {}).get("historical_counts", self.DEFAULT_HISTORY)),
+                payload.get("tiers", self.DEFAULT_TIERS),
+                arrival_multipliers=payload.get("arrival_multipliers", [0.8, 1.0, 1.2]),
+                service_time_multipliers=payload.get("service_time_multipliers", [0.8, 1.0, 1.2]),
+                replications=int(payload.get("replications", 100)),
+                seed=payload.get("seed", 42),
+            )
             return json.dumps(result)
         except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
             return json.dumps({"error": str(error)})
@@ -221,93 +309,78 @@ class API:
         try:
             payload = self._decode_payload(payload_json)
             document = self.repository.save(payload.get("scenario", payload), payload.get("scenario_id"))
-            self.decision_ledger.append("scenario_saved", {"scenario_id": document.get("id"), "fingerprint": document.get("fingerprint")})
             return json.dumps(document)
         except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
             return json.dumps({"error": str(error)})
 
-    def get_live_slo_dashboard(self, history_limit: int = 60) -> str:
-        try:
-            return json.dumps(self.live_slo_monitor.dashboard_snapshot(history_limit=int(history_limit)))
-        except (TypeError, ValueError) as error:
-            return json.dumps({"error": str(error)})
-
-    def advance_live_slo_demo(self) -> str:
-        try:
-            result = self.live_slo_monitor.advance_demo()
-            self.decision_ledger.append("slo_observation", result)
-            return json.dumps(result)
-        except (TypeError, ValueError) as error:
-            return json.dumps({"error": str(error)})
-
-    def reset_live_slo_dashboard(self) -> str:
-        try:
-            result = self.live_slo_monitor.reset()
-            self.decision_ledger.append("slo_dashboard_reset", result)
-            return json.dumps(result)
-        except (TypeError, ValueError) as error:
-            return json.dumps({"error": str(error)})
-
     def list_scenarios(self) -> str:
+        """List locally stored, integrity-verified scenario summaries."""
         try:
             return json.dumps(self.repository.list())
         except (TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
             return json.dumps({"error": str(error)})
 
     def load_scenario(self, scenario_id: str) -> str:
+        """Return one integrity-verified scenario document for workspace editing."""
         try:
             return json.dumps(self.repository.load(scenario_id))
         except (FileNotFoundError, TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
             return json.dumps({"error": str(error)})
 
     def delete_scenario(self, scenario_id: str) -> str:
+        """Delete only a locally stored scenario selected by the operator."""
         try:
             self.repository.delete(scenario_id)
-            self.decision_ledger.append("scenario_deleted", {"scenario_id": scenario_id})
             return json.dumps({"deleted": True, "id": scenario_id})
         except (FileNotFoundError, TypeError, ValueError) as error:
             return json.dumps({"error": str(error)})
 
     def export_scenario_report(self, scenario_id: str) -> str:
+        """Run a saved scenario and return a portable, audit-ready report payload."""
         try:
             document = self.repository.load(scenario_id)
             scenario = document["scenario"]
             simulation = run_ai_monte_carlo(
-                scenario["historical_counts"], scenario["tiers"],
+                scenario["historical_counts"],
+                scenario["tiers"],
                 horizon=scenario["simulation"]["horizon"],
                 replications=scenario["simulation"]["replications"],
                 seed=scenario["simulation"]["seed"],
             )
-            result = {
+            return json.dumps({
                 "product": "QueueCraft Enterprise AI",
                 "report_version": "1.0",
                 "generated_at": document["updated_at"],
                 "scenario": document,
                 "simulation": simulation,
                 "sla": evaluate_sla(simulation, scenario["sla"]["max_end_to_end_mean_wait"]),
-            }
-            self.decision_ledger.append("scenario_report_exported", {"scenario_id": scenario_id, "fingerprint": document.get("fingerprint")})
-            return json.dumps(result)
+            })
         except (FileNotFoundError, TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
             return json.dumps({"error": str(error)})
 
     def run_saved_scenario(self, scenario_id: str) -> str:
+        """Run an auditable scenario and explicitly evaluate its configured SLA."""
         try:
             document = self.repository.load(scenario_id)
             scenario = document["scenario"]
             simulation = run_ai_monte_carlo(
-                scenario["historical_counts"], scenario["tiers"],
+                scenario["historical_counts"],
+                scenario["tiers"],
                 horizon=scenario["simulation"]["horizon"],
                 replications=scenario["simulation"]["replications"],
                 seed=scenario["simulation"]["seed"],
             )
-            result = {
-                "scenario": {"id": document["id"], "name": scenario["name"], "fingerprint": document["fingerprint"]},
-                "simulation": simulation,
-                "sla": evaluate_sla(simulation, scenario["sla"]["max_end_to_end_mean_wait"]),
-            }
-            self.decision_ledger.append("scenario_executed", {"scenario_id": scenario_id, "fingerprint": document.get("fingerprint"), "sla": result["sla"]})
-            return json.dumps(result)
+            return json.dumps(
+                {
+                    "scenario": {
+                        "id": document["id"],
+                        "name": scenario["name"],
+                        "fingerprint": document["fingerprint"],
+                    },
+                    "simulation": simulation,
+                    "sla": evaluate_sla(simulation, scenario["sla"]["max_end_to_end_mean_wait"]),
+                }
+            )
         except (FileNotFoundError, TypeError, ValueError, KeyError, json.JSONDecodeError) as error:
             return json.dumps({"error": str(error)})
 
@@ -334,7 +407,7 @@ def main() -> None:
     server_thread.start()
 
     window = webview.create_window(
-        "QueueCraft Enterprise AI v3.11 — Decision Intelligence",
+        "QueueCraft Enterprise AI v3.2 — Global Resilience",
         f"http://127.0.0.1:{PORT}/index.html",
         js_api=API(),
         width=1366,

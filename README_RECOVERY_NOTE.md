@@ -1,1 +1,0 @@
-The observability ledger is implemented as standalone local tooling while the desktop bridge retains its pre-ledger full API snapshot.
