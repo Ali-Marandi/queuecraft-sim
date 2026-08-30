@@ -1,22 +1,20 @@
 # Changelog
 
-## v3.15.0 — Governed Decision Platform
+## v3.16.0 — Policy Governance and Human Approval
 
 ### Added
 
-- Added a deterministic Decision Lineage Graph connecting data, models, scenarios, experiments, decisions, approvals, evidence, and replays.
-- Added typed provenance edges with ancestor/descendant traversal and graph fingerprints.
-- Added cycle detection so lineage graphs remain acyclic and queryable.
-- Embedded lineage into governance evidence packs.
-- Added a lineage JSON service contract and dedicated verification suite.
-- Refreshed the README to document model lifecycle, drift monitoring, continuous evaluation, observability, replay, governance, and lineage capabilities.
+- Added deterministic declarative Policy Engine with `allow`, `review`, and `block` outcomes.
+- Added rule operators `gte`, `gt`, `lte`, `lt`, `eq`, `neq`, and `in`.
+- Added explicit rule precedence: block > review > allow.
+- Added Human Approval Workflow with required reviewer role, identity, notes, and terminal decisions.
+- Added JSON service contract for policy evaluation and approval transitions.
+- Added dedicated policy and approval verification commands and tests.
+- Refreshed README and governance documentation for the new control layer.
 
 ### Governance
 
-- Evidence packages now carry provenance context alongside assumptions, model metadata, experiments, and approval state.
-- Replay, drift, promotion, and lineage remain advisory controls; no analytics layer performs external deployment or operational mutation.
-
-### Quality
-
-- Added lineage coverage for model-to-experiment, scenario-to-decision, approval, replay, duplicate-node, unknown-endpoint, and cycle cases.
-- Added `npm run test:lineage` and included lineage tests in `test:ai`.
+- Policy evaluation is side-effect free and never performs operational changes.
+- Approval decisions require an explicit human reviewer role and identity.
+- Approved/rejected requests record that no deployment was performed.
+- Existing evidence, lineage, replay, drift, and promotion controls remain active.
