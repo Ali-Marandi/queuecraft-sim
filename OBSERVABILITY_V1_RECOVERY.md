@@ -1,0 +1,1 @@
+Recovery note: the desktop bridge is restored from the pre-ledger application snapshot; ledger integration remains available as standalone local tooling.
