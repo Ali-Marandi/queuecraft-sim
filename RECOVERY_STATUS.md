@@ -1,0 +1,1 @@
+Current recovery status: standalone decision ledger and governance artifacts are retained; desktop bridge restoration is tracked in repository history.
