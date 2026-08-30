@@ -1,15 +1,15 @@
 """QueueCraft decision lineage graph.
 
-Builds a small, deterministic provenance graph connecting data, models, scenarios,
-experiments, decisions, approvals, and replays. This is provenance metadata, not
-causal inference and not a deployment mechanism.
+Builds a deterministic provenance graph connecting data, models, scenarios,
+experiments, decisions, approvals, evidence, and replays. This is provenance
+metadata, not causal inference and not a deployment mechanism.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
 from hashlib import sha256
 import json
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 NODE_TYPES = ("data", "model", "scenario", "experiment", "decision", "approval", "replay", "evidence")
 EDGE_TYPES = ("uses", "derived_from", "evaluated_by", "approved_by", "replayed_from", "contains", "supports")
@@ -55,6 +55,25 @@ def _validate_edge(edge: Mapping[str, Any], node_ids: set[str]) -> None:
         raise ValueError("unsupported lineage edge type")
 
 
+def _assert_acyclic(edges: Sequence[LineageEdge], node_ids: set[str]) -> None:
+    adjacency: dict[str, list[str]] = {node_id: [] for node_id in node_ids}
+    indegree: dict[str, int] = {node_id: 0 for node_id in node_ids}
+    for edge in edges:
+        adjacency[edge.from_id].append(edge.to_id)
+        indegree[edge.to_id] += 1
+    queue = [node_id for node_id, degree in indegree.items() if degree == 0]
+    visited = 0
+    while queue:
+        current = queue.pop(0)
+        visited += 1
+        for child in adjacency[current]:
+            indegree[child] -= 1
+            if indegree[child] == 0:
+                queue.append(child)
+    if visited != len(node_ids):
+        raise ValueError("lineage graph must be acyclic")
+
+
 def build_lineage_graph(nodes: Sequence[Mapping[str, Any]], edges: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     normalized_nodes: list[LineageNode] = []
     node_ids: set[str] = set()
@@ -71,6 +90,7 @@ def build_lineage_graph(nodes: Sequence[Mapping[str, Any]], edges: Sequence[Mapp
         _validate_edge(raw, node_ids)
         edge_id = str(raw.get("id", fingerprint({"from": raw["from"], "to": raw["to"], "type": raw["type"], "i": index})[:16]))
         normalized_edges.append(LineageEdge(edge_id, str(raw["from"]), str(raw["to"]), str(raw["type"]), dict(raw.get("metadata", {}))))
+    _assert_acyclic(normalized_edges, node_ids)
 
     adjacency: dict[str, list[str]] = {node_id: [] for node_id in node_ids}
     reverse: dict[str, list[str]] = {node_id: [] for node_id in node_ids}
@@ -129,24 +149,28 @@ def build_lineage_from_evidence(evidence: Mapping[str, Any]) -> dict[str, Any]:
     nodes: list[dict[str, Any]] = []
     edges: list[dict[str, Any]] = []
     decision = evidence.get("decision")
-    decision_id = str(evidence.get("decision_id", "decision")) if isinstance(decision, Mapping) or decision is not None else None
+    decision_id = str(evidence.get("decision_id", "decision")) if decision is not None else None
     if decision is not None:
         nodes.append({"id": decision_id, "type": "decision", "label": "Decision", "fingerprint": fingerprint(decision)})
     scenario_id = evidence.get("scenario_id")
     if scenario_id:
-        nodes.append({"id": str(scenario_id), "type": "scenario", "label": str(scenario_id), "fingerprint": evidence.get("scenario_fingerprint")})
+        scenario_id = str(scenario_id)
+        nodes.append({"id": scenario_id, "type": "scenario", "label": scenario_id, "fingerprint": evidence.get("scenario_fingerprint")})
+        if decision_id:
+            edges.append({"from": scenario_id, "to": decision_id, "type": "supports"})
+    experiment = evidence.get("experiment")
+    exp_id = None
+    if isinstance(experiment, Mapping) and experiment:
+        exp_id = str(evidence.get("experiment_id", "experiment"))
+        nodes.append({"id": exp_id, "type": "experiment", "label": exp_id, "fingerprint": fingerprint(experiment)})
+        if decision_id:
+            edges.append({"from": exp_id, "to": decision_id, "type": "supports"})
     approval = evidence.get("approval")
     if isinstance(approval, Mapping) and approval.get("id"):
         approval_id = str(approval["id"])
         nodes.append({"id": approval_id, "type": "approval", "label": approval_id, "metadata": dict(approval)})
         if decision_id:
             edges.append({"from": approval_id, "to": decision_id, "type": "approved_by"})
-    experiment = evidence.get("experiment")
-    if isinstance(experiment, Mapping) and experiment:
-        exp_id = str(evidence.get("experiment_id", "experiment"))
-        nodes.append({"id": exp_id, "type": "experiment", "label": exp_id, "fingerprint": fingerprint(experiment)})
-        if decision_id:
-            edges.append({"from": exp_id, "to": decision_id, "type": "supports"})
     models = evidence.get("models", evidence.get("model_versions", []))
     for index, model in enumerate(models if isinstance(models, list) else []):
         if isinstance(model, Mapping):
@@ -154,6 +178,8 @@ def build_lineage_from_evidence(evidence: Mapping[str, Any]) -> dict[str, Any]:
             nodes.append({"id": model_id, "type": "model", "label": model_id, "fingerprint": model.get("evidence_fingerprint"), "metadata": dict(model)})
             if decision_id:
                 edges.append({"from": model_id, "to": decision_id, "type": "uses"})
+            if exp_id:
+                edges.append({"from": model_id, "to": exp_id, "type": "evaluated_by"})
     source_data = evidence.get("source_data", evidence.get("data_assets", []))
     for index, data in enumerate(source_data if isinstance(source_data, list) else []):
         if isinstance(data, Mapping):
@@ -161,4 +187,10 @@ def build_lineage_from_evidence(evidence: Mapping[str, Any]) -> dict[str, Any]:
             nodes.append({"id": data_id, "type": "data", "label": data_id, "fingerprint": data.get("fingerprint"), "metadata": dict(data)})
             if decision_id:
                 edges.append({"from": data_id, "to": decision_id, "type": "derived_from"})
+    replay = evidence.get("replay")
+    if isinstance(replay, Mapping) and replay:
+        replay_id = str(evidence.get("replay_id", "replay"))
+        nodes.append({"id": replay_id, "type": "replay", "label": replay_id, "fingerprint": replay.get("replay_fingerprint"), "metadata": dict(replay)})
+        if decision_id:
+            edges.append({"from": replay_id, "to": decision_id, "type": "replayed_from"})
     return build_lineage_graph(nodes, edges)
