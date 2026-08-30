@@ -1,23 +1,22 @@
 # Changelog
 
-## v3.3.0 — Commercial Workspace
+## v3.15.0 — Governed Decision Platform
 
 ### Added
 
-- Added an integrity-verified local Workspace for browsing saved scenarios.
-- Added one-click execution of saved scenarios with explicit SLA status and fingerprint display.
-- Added portable audit-ready JSON report export containing assumptions, simulation output, timestamps, and SLA assessment.
-- Added safe operator-scoped deletion for local scenarios.
-- Added `COMMERCIAL_PRODUCT_SPEC_V4.md` with enterprise acceptance criteria and the advanced commercial roadmap.
+- Added a deterministic Decision Lineage Graph connecting data, models, scenarios, experiments, decisions, approvals, evidence, and replays.
+- Added typed provenance edges with ancestor/descendant traversal and graph fingerprints.
+- Added cycle detection so lineage graphs remain acyclic and queryable.
+- Embedded lineage into governance evidence packs.
+- Added a lineage JSON service contract and dedicated verification suite.
+- Refreshed the README to document model lifecycle, drift monitoring, continuous evaluation, observability, replay, governance, and lineage capabilities.
+
+### Governance
+
+- Evidence packages now carry provenance context alongside assumptions, model metadata, experiments, and approval state.
+- Replay, drift, promotion, and lineage remain advisory controls; no analytics layer performs external deployment or operational mutation.
 
 ### Quality
 
-- Added regression coverage for load, export, fingerprint preservation, and deletion behavior.
-- Python suite: 38 tests passing.
-- JavaScript suite: 7 tests passing.
-
-### Security and privacy
-
-- Workspace data remains local by default.
-- The local simulation path does not send telemetry or mutate infrastructure.
-- No GitHub token or signing secret is included in source or release artifacts.
+- Added lineage coverage for model-to-experiment, scenario-to-decision, approval, replay, duplicate-node, unknown-endpoint, and cycle cases.
+- Added `npm run test:lineage` and included lineage tests in `test:ai`.
