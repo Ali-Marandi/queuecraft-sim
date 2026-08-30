@@ -1,4 +1,4 @@
-# Runtime dependencies for QueueCraft Enterprise AI v3.0
+# Runtime dependencies for QueueCraft Enterprise AI
 # Install with: python -m pip install -r requirements.txt
 numpy>=1.26,<3
 matplotlib>=3.8,<4
@@ -6,6 +6,7 @@ pandas>=2.2,<3
 openpyxl>=3.1,<4
 xlrd>=2.0,<3
 pywebview>=6.0,<7
+cryptography>=42,<46
 # Optional only when the operator explicitly enables Generative AI proposals.
 openai>=1.0,<3
 
