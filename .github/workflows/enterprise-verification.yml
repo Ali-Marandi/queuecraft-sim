@@ -1,0 +1,26 @@
+name: enterprise-verification
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  enterprise-platform:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Enterprise platform tests
+        run: python -m unittest -v test_enterprise_expansion_v2.py
+      - name: Core governance smoke tests
+        run: python -m unittest -v test_governance_layer.py test_decision_replay.py test_decision_lineage.py test_policy_engine.py test_approval_workflow.py
