@@ -2,17 +2,17 @@
 
 <div align="center">
 
-![QueueCraft](https://img.shields.io/badge/QueueCraft-Enterprise%20AI%20v3.15-4f46e5?style=for-the-badge)
+![QueueCraft](https://img.shields.io/badge/QueueCraft-Enterprise%20AI%20v3.16-4f46e5?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-16a34a?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20x64-2563eb?style=for-the-badge)
 
-**Enterprise simulation, scenario intelligence, governed model evaluation, and auditable decision support.**
+**Enterprise simulation, scenario intelligence, governed model evaluation, policy workflows, and auditable decision support.**
 
 </div>
 
 ## Overview
 
-QueueCraft Enterprise AI is an offline-first desktop decision-support suite for service operations, capacity planning, resilience engineering, and cross-disciplinary scenario analysis. It combines deterministic and stochastic queue simulation with market-intelligence analytics, stress testing, governed model lifecycle controls, replay, and provenance tracking so operators can evaluate a decision before any operational change is approved.
+QueueCraft Enterprise AI is an offline-first desktop decision-support suite for service operations, capacity planning, resilience engineering, and cross-disciplinary scenario analysis. It combines deterministic and stochastic queue simulation with market-intelligence analytics, stress testing, governed model lifecycle controls, replay, provenance tracking, policy evaluation, and human approval workflows so operators can evaluate a decision before any operational change is approved.
 
 ## Current Enterprise Capabilities
 
@@ -31,13 +31,13 @@ QueueCraft Enterprise AI is an offline-first desktop decision-support suite for 
 | Decision Replay | Deterministic replay contract, fingerprint comparison, field-level divergence, and heuristic diagnosis |
 | Decision Lineage | Typed provenance graph linking data, models, scenarios, experiments, decisions, approvals, evidence, and replays |
 | Governed Evidence Packs | Portable evidence packages with data/model metadata, assumptions, experiment details, approval state, and embedded lineage |
+| Policy Engine | Declarative allow/review/block rules with deterministic precedence and auditable rule matches |
+| Approval Workflow | Explicit human reviewer role, state transitions, notes, and deployment-side-effect guard |
 | Commercial workspace and reporting | Browse, run, delete, and export fingerprint-verified saved scenarios as portable audit-ready JSON reports |
 | Localization foundation | English and Persian interface vocabulary with persistent language selection and RTL support |
 | Offline-ready desktop bundle | Locally bundled chart/CSS assets, PyInstaller runtime collection, Inno Setup installer definition, and release workflow |
 
 ## Verification
-
-The repository maintains separate commands for major control layers:
 
 ```bash
 npm test
@@ -53,23 +53,41 @@ npm run test:evaluation
 npm run test:observability
 npm run test:replay
 npm run test:lineage
+npm run test:policy
+npm run test:approval
 ```
 
-The GitHub Actions workflow runs Node.js and Python verification across its configured version matrix. CI status should be treated as authoritative for the specific commit being evaluated.
+CI status should be treated as authoritative for the specific commit being evaluated.
+
+## Governance Flow
+
+```text
+Data → Model → Scenario → Experiment → Decision
+                                      ↓
+                                   Policy
+                                      ↓
+                              Review / Block
+                                      ↓
+                                   Approval
+                                      ↓
+                                   Replay
+```
+
+`policy_engine.py` is deterministic and side-effect free. `approval_workflow.py` requires explicit human identity and role for approval/rejection, and does not deploy anything.
 
 ## Decision Lineage
 
-A decision can now be represented as a provenance chain:
+A decision is represented as provenance metadata:
 
 ```text
 Data → Model → Scenario → Experiment → Decision → Approval → Replay
 ```
 
-`decision_lineage.py` provides a deterministic graph representation and focused ancestor/descendant queries. `governance_layer.build_evidence_pack()` embeds the resulting graph into the evidence package.
+`decision_lineage.py` provides a deterministic graph representation, cycle detection, and focused ancestor/descendant queries. `governance_layer.build_evidence_pack()` embeds the resulting graph into the evidence package.
 
 ## Replay and Governance Boundary
 
-Replay proves that a supplied deterministic execution path reproduces or diverges from a stored decision record. It does not establish model correctness or causal validity. Drift, risk, lineage, and diagnostic signals are decision-support controls rather than guarantees.
+Replay proves that a supplied deterministic execution path reproduces or diverges from a stored decision record. It does not establish model correctness or causal validity. Drift, risk, lineage, diagnostic, and policy signals are decision-support controls rather than guarantees.
 
 QueueCraft does not automatically deploy, trade, scale infrastructure, or mutate external systems through these analytics and governance layers. Human approval remains required for governed promotion and operational action.
 
@@ -80,13 +98,6 @@ git clone https://github.com/Ali-Marandi/queuecraft-sim.git
 cd queuecraft-sim
 python -m pip install -r requirements.txt
 python app.py
-```
-
-### Scenario Intelligence 2.0
-
-```bash
-python scenario_intelligence_cli.py examples/integrated_scenario_intelligence.json \
-  --output artifacts/integrated-scenario.json
 ```
 
 ### Decision Replay
