@@ -17,7 +17,7 @@ class GovernanceLayerTests(unittest.TestCase):
         self.assertEqual(len(snapshot["data_assets"]), 1)
         self.assertEqual(snapshot["models"][0]["model_id"], "garch11")
 
-    def test_evidence_pack_is_deterministic(self):
+    def test_evidence_pack_is_deterministic_and_contains_lineage(self):
         data = [DataAsset("arrivals", "local_csv", "arrival buckets", quality_score=0.98)]
         models = [ModelRecord("decision-engine", "optimization", "4.0.0", "capacity recommendation")]
         kwargs = dict(decision={"candidate": "plan-2"}, source_data=data, models=models, assumptions={"sla": 5.0})
@@ -25,6 +25,8 @@ class GovernanceLayerTests(unittest.TestCase):
         b = build_evidence_pack(**kwargs)
         self.assertEqual(a["evidence_fingerprint"], b["evidence_fingerprint"])
         self.assertEqual(len(a["evidence_fingerprint"]), 64)
+        self.assertIn("lineage", a)
+        self.assertGreaterEqual(a["lineage"]["node_count"], 3)
 
     def test_fingerprint_changes_with_content(self):
         self.assertNotEqual(fingerprint({"x": 1}), fingerprint({"x": 2}))
