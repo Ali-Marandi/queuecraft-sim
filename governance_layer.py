@@ -73,9 +73,9 @@ def data_quality_score(values: Sequence[Any], *, expected_min: int = 1) -> dict[
 
 
 def build_evidence_pack(*, decision: Mapping[str, Any], source_data: Sequence[DataAsset], models: Sequence[ModelRecord], assumptions: Mapping[str, Any], experiment: Mapping[str, Any] | None = None, approver: str | None = None) -> dict[str, Any]:
-    """Create a portable, immutable-by-convention evidence record for a decision."""
+    """Create a portable evidence record with an embedded provenance graph."""
     pack = {
-        "evidence_version": "1.0.0",
+        "evidence_version": "1.1.0",
         "decision": dict(decision),
         "source_data": [asdict(item) for item in source_data],
         "models": [asdict(item) for item in models],
@@ -87,5 +87,7 @@ def build_evidence_pack(*, decision: Mapping[str, Any], source_data: Sequence[Da
             "status": "pending" if not approver else "approved",
         },
     }
+    from decision_lineage import build_lineage_from_evidence
+    pack["lineage"] = build_lineage_from_evidence(pack)
     pack["evidence_fingerprint"] = fingerprint(pack)
     return pack
