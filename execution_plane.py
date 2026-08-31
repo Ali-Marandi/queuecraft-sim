@@ -11,7 +11,7 @@ from hashlib import sha256
 import heapq
 import json
 import time
-from typing import Any, Callable, Mapping
+from typing import Any, Callable
 
 
 def canonical_json(value: Any) -> str:
@@ -105,6 +105,7 @@ class ExecutionPlane:
                 if runtime > self.budget.max_seconds:
                     job.status = "timeout"
                     job.error = f"runtime exceeded {self.budget.max_seconds}s budget"
+                    job.result = None
                 else:
                     job.status = "completed"
                     job.result = result
