@@ -51,4 +51,11 @@ jobs:
           python-version: '3.12'
       - name: Verify governance contracts
         run: |
-          python -m unittest -v test_governance_hardening.py test_policy_engine.py test_approval_workflow.py test_decision_readiness.py
+          python -m unittest -v \
+            test_governance_hardening.py \
+            test_policy_engine.py \
+            test_approval_workflow.py \
+            test_decision_readiness.py \
+            test_enterprise_security.py \
+            test_enterprise_extensions.py \
+            test_governance_contracts.py
