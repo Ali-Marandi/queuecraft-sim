@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![QueueCraft](https://img.shields.io/badge/QueueCraft-Enterprise%20AI%20v3.16-4f46e5?style=for-the-badge)
+![QueueCraft](https://img.shields.io/badge/QueueCraft-Enterprise%20AI%20v3.22-4f46e5?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-16a34a?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20x64-2563eb?style=for-the-badge)
 
@@ -12,7 +12,7 @@
 
 ## Overview
 
-QueueCraft Enterprise AI is an offline-first desktop decision-support suite for service operations, capacity planning, resilience engineering, and cross-disciplinary scenario analysis. It combines deterministic and stochastic queue simulation with market-intelligence analytics, stress testing, governed model lifecycle controls, replay, provenance tracking, policy evaluation, and human approval workflows so operators can evaluate a decision before any operational change is approved.
+QueueCraft Enterprise AI is an offline-first desktop decision-support suite for service operations, capacity planning, resilience engineering, and cross-disciplinary scenario analysis. It combines deterministic and stochastic queue simulation with market-intelligence analytics, stress testing, governed model lifecycle controls, replay, provenance tracking, policy evaluation, human approval workflows, enterprise data contracts, distributed execution, and integrated model governance so operators can evaluate a decision before any operational change is approved.
 
 ## Current Enterprise Capabilities
 
@@ -25,14 +25,20 @@ QueueCraft Enterprise AI is an offline-first desktop decision-support suite for 
 | Market Intelligence | Taylor-style macro benchmark, CAPM/factor regression, GARCH(1,1), Altman Z, Beneish M, Black-Litterman, contagion, behavioral/fuzzy/TOPSIS and stress scenarios |
 | Walk-forward validation | Chronological folds, rolling performance metrics, regime classification, and regime-aware model selection |
 | Model Lifecycle | Calibration, drift screening, champion/challenger comparison, model registry, and explicit promotion gates |
+| Integrated Model Governance | One report spanning validation, candidate comparison, continuous evaluation, promotion eligibility, and human-approval boundary |
 | Streaming Drift | Reference/current window monitoring with challenger-evaluation triggers; deployment remains blocked |
 | Continuous Evaluation | Primary-metric improvement checks plus protected-metric regression guardrails |
+| Enterprise Data Plane | Versioned schemas, validation profiles, dataset manifests, deterministic cache keys, and reproducible run bundles |
+| Distributed Execution | Bounded parallel replication, deterministic task identity, checkpoint/resume, cancellation, and progress reporting |
+| Security Controls | Deny-by-default authorization, role/permission evaluation, operation risk classification, and automatic external-side-effect blocking |
 | Observability | Append-only local decision ledger, hash chaining, integrity verification, event timeline queries |
 | Decision Replay | Deterministic replay contract, fingerprint comparison, field-level divergence, and heuristic diagnosis |
 | Decision Lineage | Typed provenance graph linking data, models, scenarios, experiments, decisions, approvals, evidence, and replays |
 | Governed Evidence Packs | Portable evidence packages with data/model metadata, assumptions, experiment details, approval state, and embedded lineage |
 | Policy Engine | Declarative allow/review/block rules with deterministic precedence and auditable rule matches |
 | Approval Workflow | Explicit human reviewer role, state transitions, notes, and deployment-side-effect guard |
+| Audit Bundles | Fingerprinted, minimized, redacted decision packages suitable for deterministic local archival |
+| Decision Readiness | Final READY / REVIEW / BLOCK control boundary for governed decisions |
 | Commercial workspace and reporting | Browse, run, delete, and export fingerprint-verified saved scenarios as portable audit-ready JSON reports |
 | Localization foundation | English and Persian interface vocabulary with persistent language selection and RTL support |
 | Offline-ready desktop bundle | Locally bundled chart/CSS assets, PyInstaller runtime collection, Inno Setup installer definition, and release workflow |
@@ -42,10 +48,12 @@ QueueCraft Enterprise AI is an offline-first desktop decision-support suite for 
 ```bash
 npm test
 npm run test:ai
+npm run test:enterprise
+npm run test:model-governance
 npm run test:market
 npm run test:scenario-intelligence
 npm run test:experiments
-npm run test:model-lifecycle
+npm run test:governance
 npm run test:validation
 npm run test:drift
 npm run test:challenger
@@ -66,14 +74,18 @@ Data → Model → Scenario → Experiment → Decision
                                       ↓
                                    Policy
                                       ↓
-                              Review / Block
+                              Evidence / Audit
                                       ↓
-                                   Approval
+                            Human Approval
                                       ↓
-                                   Replay
+                              Readiness Gate
+                               ↙         ↘
+                           READY       REVIEW/BLOCK
+                               ↓
+                          Replay / Audit
 ```
 
-`policy_engine.py` is deterministic and side-effect free. `approval_workflow.py` requires explicit human identity and role for approval/rejection, and does not deploy anything.
+`policy_engine.py` is deterministic and side-effect free. `approval_workflow.py` requires explicit human identity and role for approval/rejection, and does not deploy anything. `model_governance.py` composes validation, comparison, evaluation, and promotion eligibility without performing deployment.
 
 ## Decision Lineage
 
@@ -112,17 +124,35 @@ python decision_replay_service.py examples/decision_replay.json
 python decision_lineage_service.py examples/integrated_scenario_intelligence.json
 ```
 
+### Integrated Model Governance
+
+The local JSON service accepts a deterministic built-in model catalog and returns validation, challenger, evaluation, and promotion-gate evidence without allowing model execution outside the approved catalog.
+
+```text
+model_governance_service.py
+        ↓
+walk-forward validation
+        ↓
+candidate comparison
+        ↓
+continuous evaluation
+        ↓
+promotion gate
+        ↓
+human approval boundary
+```
+
 ## Research Boundary
 
 Research-only families such as DSGE, causal ML, topological data analysis, diffusion finance, quantum finance, federated learning, and ANFIS remain separated from the executable analytics layer until they have dedicated calibration, validation, and governance.
 
 ## Security and Privacy
 
-Local analytics are offline-first. Credentials and local environment files are excluded by `.gitignore`, outbound telemetry is not enabled by default, and governance/replay helpers do not perform external operational actions. These controls do not replace an enterprise security review.
+Local analytics are offline-first. Credentials and local environment files are excluded by `.gitignore`, outbound telemetry is not enabled by default, and governance/replay helpers do not perform external operational actions. Decision artifacts use deterministic fingerprints and export-boundary redaction where appropriate. These controls do not replace an enterprise security review.
 
 ## Commercial Roadmap
 
-Future enterprise layers can add signed scenario packages, role-aware workspaces, PDF/XLSX reporting, encrypted local stores, SSO/RBAC, centralized catalogues, and reviewed read-only connectors. Such integrations should preserve the existing least-privilege and human-approval boundaries.
+Future enterprise layers can add signed scenario packages, role-aware workspaces, SSO/RBAC integrations, centralized catalogues, reviewed read-only connectors, richer performance telemetry, multi-tenant server-side governance, and external evidence stores. Such integrations should preserve the existing least-privilege and human-approval boundaries.
 
 ## License
 
