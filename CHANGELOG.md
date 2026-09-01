@@ -1,5 +1,24 @@
 # Changelog
 
+## v3.23.0 — Enterprise Platform Hardening
+
+### Added
+
+- Added `signed_evidence.py` with Ed25519 detached signatures and artifact fingerprints for stronger evidence authenticity.
+- Added `tenant_isolation.py` with explicit tenant context, scoped resource identifiers, tenant-match authorization, and cross-tenant overwrite protection.
+- Added `scenario_compiler.py` to validate, normalize, fingerprint, and classify scenarios into interactive/batch/distributed execution plans before execution.
+- Added `simulation_performance.py` with workload estimation, safe execution-mode selection, stable per-replication seeds, and bounded benchmark metadata.
+- Added `test_enterprise_platform_hardening.py` covering signature verification/tampering, tenant isolation, scenario compilation, workload classification, and deterministic seed assignment.
+- Added `docs/THREAT_MODEL_ENTERPRISE.md` documenting trust boundaries, primary assets, threats, mitigations, residual risks, and centralized-deployment requirements.
+- Expanded CI quality gates to execute the platform-hardening suite on supported Python versions.
+
+### Security / Governance
+
+- Evidence can now be authenticated cryptographically when an enterprise key-management process supplies the signing keys.
+- Tenant ownership is explicit at the application boundary; centralized deployments must enforce the same tenant predicate in persistent storage and queries.
+- Scenario execution can be admitted based on estimated workload size rather than blindly submitting arbitrarily large simulations.
+- Existing human-approval and no-automatic-deployment invariants remain unchanged.
+
 ## v3.22.0 — Integrated Model Governance
 
 ### Added
