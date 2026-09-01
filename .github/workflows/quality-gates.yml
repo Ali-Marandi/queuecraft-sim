@@ -23,6 +23,8 @@ jobs:
         run: python -m compileall -q .
       - name: Run Python test suite
         run: python -m unittest discover -p 'test_*.py' -v
+      - name: Run integrated model governance suite
+        run: python -m unittest -v test_model_governance.py test_model_governance_service.py test_model_registry.py test_model_lifecycle.py test_model_lifecycle_service.py test_promotion_gate.py test_walk_forward_backtest.py test_streaming_drift.py test_challenger_orchestrator.py test_continuous_evaluation.py
 
   javascript-quality:
     runs-on: ubuntu-latest
@@ -58,4 +60,6 @@ jobs:
             test_decision_readiness.py \
             test_enterprise_security.py \
             test_enterprise_extensions.py \
-            test_governance_contracts.py
+            test_governance_contracts.py \
+            test_model_governance.py \
+            test_model_governance_service.py
