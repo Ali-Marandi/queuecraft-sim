@@ -8,9 +8,10 @@
 - Added `tenant_isolation.py` with explicit tenant context, scoped resource identifiers, tenant-match authorization, and cross-tenant overwrite protection.
 - Added `scenario_compiler.py` to validate, normalize, fingerprint, and classify scenarios into interactive/batch/distributed execution plans before execution.
 - Added `simulation_performance.py` with workload estimation, safe execution-mode selection, stable per-replication seeds, and bounded benchmark metadata.
-- Added `test_enterprise_platform_hardening.py` covering signature verification/tampering, tenant isolation, scenario compilation, workload classification, and deterministic seed assignment.
+- Added `platform_hardening_service.py` as the stable JSON contract for scenario compilation, signature verification, performance planning, and tenant authorization.
+- Added `test_enterprise_platform_hardening.py` and `test_platform_hardening_service.py` covering cryptographic verification, tenant isolation, scenario compilation, workload classification, deterministic seed assignment, and service contracts.
 - Added `docs/THREAT_MODEL_ENTERPRISE.md` documenting trust boundaries, primary assets, threats, mitigations, residual risks, and centralized-deployment requirements.
-- Expanded CI quality gates to execute the platform-hardening suite on supported Python versions.
+- Expanded CI quality gates to execute the platform-hardening suites on supported Python versions.
 
 ### Security / Governance
 
